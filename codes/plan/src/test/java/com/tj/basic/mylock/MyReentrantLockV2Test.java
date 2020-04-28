@@ -1,9 +1,11 @@
 package com.tj.basic.mylock;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 class MyReentrantLockV2Test {
 
     @Test
@@ -52,5 +54,31 @@ class MyReentrantLockV2Test {
         //当前线程执行才会抛出异常，否则，异常会在thread抛出 ，导致这里的assetThrows获取不到异常。
         Throwable exception = assertThrows(IllegalMonitorStateException.class,()->thread.run());
         assertEquals("current state is 0,but wanto release more...",exception.getMessage());
+    }
+
+    @Test
+    void unLock2() throws InterruptedException {
+        MyReentrantLockV2 lock =new MyReentrantLockV2();
+        Runnable t=()->{
+            System.out.println(Thread.currentThread().getName()+" try   lock");
+            lock.lock();
+            try {
+
+                Thread.sleep(3000);
+                lock.unLock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+
+            }
+        };
+        Thread thread =new Thread(t,"thread_abcd");
+        //当前线程执行才会抛出异常，否则，异常会在thread抛出 ，导致这里的assetThrows获取不到异常。
+        thread.start();
+        Thread.sleep(1000);
+        assertEquals(lock.getCurrentLockThreadName(),thread.getName());
+        Thread.sleep(4000);
+        System.out.println("current:"+Thread.currentThread().getName());
+        System.out.println("locked:"+lock.getCurrentLockThreadName());
+        assertNotEquals(lock.getCurrentLockThreadName(),Thread.currentThread());//说明锁释放的时候，如果没有清除current持有的标记 。
     }
 }

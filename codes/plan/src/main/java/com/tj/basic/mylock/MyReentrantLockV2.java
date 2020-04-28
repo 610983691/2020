@@ -1,5 +1,7 @@
 package com.tj.basic.mylock;
 
+import lombok.Getter;
+
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
@@ -9,6 +11,8 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * @Description 第一版实现失败了，发现其实是由于lock的时候是调用的tryAccquire。因此这里在V1版本基础上实现V2版本。
  * @createTime 2020年04月26日 23:06:00
  */
+
+@Getter
 public class MyReentrantLockV2 extends MyReentrantLock{
 
     public MyReentrantLockV2(){
@@ -37,7 +41,9 @@ public class MyReentrantLockV2 extends MyReentrantLock{
         sync.release(1);
     }
 
-
+    public String getCurrentLockThreadName(){
+        return sync.getCurrentExclusiveOwner();
+    }
     public int getWaitingThreaCounts(){
         return sync.getQueuedThreads().size();
     }
@@ -53,10 +59,12 @@ public class MyReentrantLockV2 extends MyReentrantLock{
      */
     private class Sync extends AbstractQueuedSynchronizer {
 
-
+        final String getCurrentExclusiveOwner(){
+            return getExclusiveOwnerThread().getName();
+        }
        final void lock(){
-            if (sync.compareAndSetState(0,1)){//x先尝试加锁
-                sync.setExclusiveOwnerThread(Thread.currentThread());
+            if (compareAndSetState(0,1)){//x先尝试加锁
+                setExclusiveOwnerThread(Thread.currentThread());
             }else{
                 acquire(1);
             }

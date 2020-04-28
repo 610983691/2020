@@ -1,5 +1,9 @@
 package com.tj.basic.mylock;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Lock;
 
@@ -26,7 +30,6 @@ public class MyReentrantLock  {
      */
     public void lock(){
         while (!sync.tryAcquire(1)){
-
         }
     }
 
