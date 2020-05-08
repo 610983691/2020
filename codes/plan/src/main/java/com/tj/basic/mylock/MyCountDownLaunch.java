@@ -55,7 +55,7 @@ public class MyCountDownLaunch {
                 throw new IllegalStateException("state ==0.but the await method can only be execute once.");
             }else if(c>0){
                 return -1;
-            }else{//小于0
+            }else{//小于0，其实这样做这个“锁”就是不可重入锁，因为不管是否是当前线程，都会导致state<0
                 throw new IllegalStateException("state <0 .the await method can only be execute once.");
             }
 
