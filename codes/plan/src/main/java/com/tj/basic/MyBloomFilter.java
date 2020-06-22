@@ -4,6 +4,8 @@ import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 
+import java.util.concurrent.Callable;
+
 public class MyBloomFilter {
     public static void main(String[] args) {
         //api调用
