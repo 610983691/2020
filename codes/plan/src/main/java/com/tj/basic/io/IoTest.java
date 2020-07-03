@@ -22,7 +22,7 @@ public class IoTest {
             FileChannel fileChannel = FileChannel.open(Paths.get("C:\\Users\\tongjie\\Desktop\\test.txt"));
             int bytesread=0;
             while ((bytesread =fileChannel.read(buf))!=-1){
-               log.info("read bytes {} ,msg is £º{}",bytesread,new String(Arrays.copyOf(buf.array(),bytesread),"UTF-8"));
+               log.info("read bytes {} ,msg is ï¼š{}",bytesread,new String(Arrays.copyOf(buf.array(),bytesread),"UTF-8"));
                 buf.clear();
             }
 
