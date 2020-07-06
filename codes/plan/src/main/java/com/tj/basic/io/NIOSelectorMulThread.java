@@ -28,7 +28,7 @@ public class NIOSelectorMulThread {
     public static void main(String[] args) throws IOException {
          Selector selector = Selector.open();
         LinkedBlockingQueue<SelectionKey> readerQueue = new LinkedBlockingQueue<>(10);
-        LinkedBlockingQueue<SelectionKey> acceptQueue = new LinkedBlockingQueue<>(10);
+        LinkedBlockingQueue<SocketChannel> acceptQueue = new LinkedBlockingQueue<>(10);
         Thread server = new Server(selector,readerQueue,acceptQueue);
 
 
@@ -45,8 +45,8 @@ public class NIOSelectorMulThread {
         private AtomicInteger acceptCunt = new AtomicInteger(0);
         private AtomicInteger readerCount = new AtomicInteger(0);
         private LinkedBlockingQueue<SelectionKey> readerQueue;
-        private LinkedBlockingQueue<SelectionKey>  acceptQueue;
-        Server(Selector sel,LinkedBlockingQueue<SelectionKey> reader,LinkedBlockingQueue<SelectionKey> accpt){
+        private LinkedBlockingQueue<SocketChannel>  acceptQueue;
+        Server(Selector sel,LinkedBlockingQueue<SelectionKey> reader,LinkedBlockingQueue<SocketChannel> accpt){
             this.selector =sel;
             this.readerQueue =reader;
             this.acceptQueue =accpt;
@@ -66,10 +66,12 @@ public class NIOSelectorMulThread {
                             it.remove();
                             if(key.isReadable()){
                                 log.info("reader key:{},count:{}",key,readerCount.addAndGet(1));
-                                readerQueue.put(key);
+                                readerQueue.put(key);//BUG ,这里必须把key里边的数据消费掉，否则一直会触发可读事件。采用别的线程来消费时，就会产生BUG
                             }else if(key.isAcceptable()){
                                 log.info("accept key:{},count：{}",key, acceptCunt.addAndGet(1));
-                                acceptQueue.put(key);
+                                ServerSocketChannel server = (ServerSocketChannel) key.channel();
+                                SocketChannel client = server.accept();//必须先accept，否则也会一直触发可连接事件。
+                                acceptQueue.put(client);
                             }
 
                         }
@@ -105,6 +107,7 @@ public class NIOSelectorMulThread {
             while (true){
                 try {
                     SelectionKey key = readerClients.take();
+                    log.info("here:{}",key);
                     SocketChannel cli = (SocketChannel) key.channel();
                     ByteBuffer buffer =(ByteBuffer) key.attachment();
                     int readlen ;
@@ -123,9 +126,11 @@ public class NIOSelectorMulThread {
                             cli.write(buffer);//回写回客户端
                             buffer.clear();
                         }else if(readlen==0){
+                            buffer.clear();
                             break;
                         }else{
                             log.info("client {} closed.",cli.socket().getPort());
+                            buffer.clear();
                             if(cli.isOpen()){
                                 cli.close();//关闭连接
                             }
@@ -144,9 +149,9 @@ public class NIOSelectorMulThread {
      * 处理连接
      */
     private static class ConnectProcessor extends  Thread{
-        private LinkedBlockingQueue<SelectionKey> clients;//需要接收连接的客户端
+        private LinkedBlockingQueue<SocketChannel> clients;//需要接收连接的客户端
         private  Selector selector;
-        ConnectProcessor(LinkedBlockingQueue<SelectionKey> c, Selector sel){
+        ConnectProcessor(LinkedBlockingQueue<SocketChannel> c, Selector sel){
             clients =c;
             selector= sel;
         }
@@ -154,13 +159,7 @@ public class NIOSelectorMulThread {
         public void run(){
             while (true){
                 try {
-                    SelectionKey clikey = clients.take();
-                    log.info("队列获取key:{}",clikey);
-                    ServerSocketChannel server = (ServerSocketChannel) clikey.channel();
-                    SocketChannel client = server.accept();
-                    if(client == null){
-                        continue;
-                    }
+                    SocketChannel client =clients.take();
                     client.configureBlocking(false);
                     log.info("客户端{}连接：",client.socket().getPort());
                     client.register(selector,SelectionKey.OP_READ, ByteBuffer.allocate(1024));//把客户端绑定到一个selector上去，监听客户端的可读事件

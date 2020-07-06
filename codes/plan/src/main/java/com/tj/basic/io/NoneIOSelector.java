@@ -69,33 +69,33 @@ public class NoneIOSelector {
      * @throws IOException
      */
     private void handleRead(SelectionKey key) throws IOException {
-//        SocketChannel cli = (SocketChannel) key.channel();
-//        ByteBuffer buffer =(ByteBuffer) key.attachment();
-//        int readlen ;
-//        while (true){
-//            readlen=cli.read(buffer);
-//            if(readlen>0){
-//                buffer.flip();
-//                byte[] readbytes = new byte[buffer.limit()];
-//                buffer.get(readbytes);
-//                buffer.clear();
-//                String rcvmsg= new String(readbytes,"UTF-8");
-//                log.info("server read cli {},msg:{}",cli.socket().getPort(),rcvmsg);
-//                String send = "server rcv cli +"+cli.socket().getPort()+"-->:"+rcvmsg;
-//                buffer.put(send.getBytes("UTF-8"));
-//                buffer.flip();
-//                cli.write(buffer);//回写回客户端
-//                buffer.clear();
-//            }else if(readlen==0){
-//                break;
-//            }else{
-//                log.info("client {} closed.",cli.socket().getPort());
-//                if(cli.isOpen()){
-//                    cli.close();//关闭连接
-//                }
-//                break;
-//            }
-//        }
+        SocketChannel cli = (SocketChannel) key.channel();
+        ByteBuffer buffer =(ByteBuffer) key.attachment();
+        int readlen ;
+        while (true){
+            readlen=cli.read(buffer);
+            if(readlen>0){
+                buffer.flip();
+                byte[] readbytes = new byte[buffer.limit()];
+                buffer.get(readbytes);
+                buffer.clear();
+                String rcvmsg= new String(readbytes,"UTF-8");
+                log.info("server read cli {},msg:{}",cli.socket().getPort(),rcvmsg);
+                String send = "server rcv cli +"+cli.socket().getPort()+"-->:"+rcvmsg;
+                buffer.put(send.getBytes("UTF-8"));
+                buffer.flip();
+                cli.write(buffer);//回写回客户端
+                buffer.clear();
+            }else if(readlen==0){
+                break;
+            }else{
+                log.info("client {} closed.",cli.socket().getPort());
+                if(cli.isOpen()){
+                    cli.close();//关闭连接
+                }
+                break;
+            }
+        }
     }
 
     /***
