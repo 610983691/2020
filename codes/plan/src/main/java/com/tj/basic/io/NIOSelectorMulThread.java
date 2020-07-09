@@ -66,7 +66,36 @@ public class NIOSelectorMulThread {
                             it.remove();
                             if(key.isReadable()){
                                 log.info("reader key:{},count:{}",key,readerCount.addAndGet(1));
-                                readerQueue.put(key);//BUG ,这里必须把key里边的数据消费掉，否则一直会触发可读事件。采用别的线程来消费时，就会产生BUG
+//                                readerQueue.put(key);//BUG ,这里必须把key里边的数据消费掉，否则一直会触发可读事件。采用别的线程来消费时，就会产生BUG
+                                SocketChannel cli = (SocketChannel) key.channel();
+                                ByteBuffer buffer =(ByteBuffer) key.attachment();
+                                int readlen ;
+                                while (true){
+                                    readlen=cli.read(buffer);
+                                    if(readlen>0){
+                                        buffer.flip();
+                                        byte[] readbytes = new byte[buffer.limit()];
+                                        buffer.get(readbytes);
+                                        buffer.clear();
+                                        String rcvmsg= new String(readbytes,"UTF-8");
+                                        log.info("server read cli {},msg:{}",cli.socket().getPort(),rcvmsg);
+                                        String send = "server rcv cli +"+cli.socket().getPort()+"-->:"+rcvmsg;
+                                        buffer.put(send.getBytes("UTF-8"));
+                                        buffer.flip();
+                                        cli.write(buffer);//回写回客户端
+                                        buffer.clear();
+                                    }else if(readlen==0){
+                                        buffer.clear();
+                                        break;
+                                    }else{
+                                        log.info("client {} closed.",cli.socket().getPort());
+                                        buffer.clear();
+                                        if(cli.isOpen()){
+                                            cli.close();//关闭连接
+                                        }
+                                        break;
+                                    }
+                                }
                             }else if(key.isAcceptable()){
                                 log.info("accept key:{},count：{}",key, acceptCunt.addAndGet(1));
                                 ServerSocketChannel server = (ServerSocketChannel) key.channel();
