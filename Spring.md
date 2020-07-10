@@ -44,3 +44,25 @@ before/AFTER/AFTER-RETURNING/AFTER-THROWING/AROUND
 
 
 Spring AOP 构建在动态代理基础之上，因此，Spring 对 AOP 的支持局限于方法拦截。
+
+
+####Spring 事务
+参考文献：
+
+[https://zhuanlan.zhihu.com/p/54067384](https://zhuanlan.zhihu.com/p/54067384 "事务")
+
+[https://juejin.im/post/5b00c52ef265da0b95276091](https://juejin.im/post/5b00c52ef265da0b95276091 "事务")
+
+什么是事务： 一组操作要么全部成功要么全部失败。 以下均以数据库事务为准描述。
+
+事务特性(ACID)：
+
+>atomic/consistency(一致性)/isolation(ˌīsəˈlāSH(ə)n)隔离性/durability(持久性)
+
+TransactionDefinition 定义了事务的基本属性：包含事务隔离级别/传播行为/回滚规则/是否只读/事务超时时间。
+
+隔离级别：
+
+MYSQL默认是REPEATABLE_READ，mysql是READ_COMMITTED。
+
+编程式事务处理和声明式事务处理。一般常用声明式事务处理就够了，简单明了，对代码侵入小。
