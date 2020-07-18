@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="beanb" class="com.tj.springdemo.ioc.BeanBDependsOnBeanC" lazy-init="true" scope="prototype" >
+        <constructor-arg name="bean"  ref="beanc"/><!-- 引用的id-->
+        <constructor-arg name="n" value="hello,this is my name"/>
+    </bean>
+    <!-- 声明为原型模式时，-->
+    <bean id ="beanc" class="com.tj.springdemo.ioc.BeanC" scope="prototype"></bean>
+</beans>

@@ -66,3 +66,23 @@ TransactionDefinition 定义了事务的基本属性：包含事务隔离级别/
 MYSQL默认是REPEATABLE_READ，mysql是READ_COMMITTED。
 
 编程式事务处理和声明式事务处理。一般常用声明式事务处理就够了，简单明了，对代码侵入小。
+
+
+###Spring IOC
+ioc容器:
+1.让所有的对象都由容器IocContainer来管理，而不是交给开发者来不断的new创建。开发者使用时，只需要通过容器获取即可使用。
+
+####三种注入方式
+接口注入/setter注入/构造方法注入
+
+####BeanFactory 容器
+IOC容器
+
+####ApplicationContext 
+间接继承至BeanFactory,是更高级的ioc容器实现，有了更多的扩展
+
+######FactoryBean：
+本身也是一种bean，也受beanfactory容器管理，不过这种类型的Bean本身就是生产对象的工厂 （Factory）。 
+
+beanfactory。getbean（）方法获取时，返回的是factorybean工厂生产的bean类型。如果一定要取得FactoryBean本身的话，可以通过在bean定义的id之前加前缀&来达到目的。代 码清单4-34展示了获取FactoryBean本身与获取FactoryBean“生产”的对象之间的差别
+
