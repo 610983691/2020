@@ -86,3 +86,13 @@ IOC容器
 
 beanfactory。getbean（）方法获取时，返回的是factorybean工厂生产的bean类型。如果一定要取得FactoryBean本身的话，可以通过在bean定义的id之前加前缀&来达到目的。代 码清单4-34展示了获取FactoryBean本身与获取FactoryBean“生产”的对象之间的差别
 
+######
+beanpostprocessor和beanfactoryPostProcessor:
+
+ >beanfactoryPostProcessor是在bean实例化之前，是在beandefinetion后触发。
+ >而beanPostProcessor提供的方法是在bean的实例化过程中被调用。
+
+####spring 官方文档
+ioc阅读
+
+Spring Enviroment 用于抽象properties和profile
