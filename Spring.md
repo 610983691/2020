@@ -96,3 +96,79 @@ beanpostprocessor和beanfactoryPostProcessor:
 ioc阅读
 
 Spring Enviroment 用于抽象properties和profile
+
+Resouce ：
+
+相对于java.net.Url,没有办法合适的抽象classPath等资源。而Spring的Resource接口旨在成为一种功能更强的接口，用于抽象对资源的访问。
+
+	
+	public interface Resource extends InputStreamSource {
+
+	    boolean exists();
+	
+	    boolean isOpen();
+	
+	    URL getURL() throws IOException;
+	
+	    File getFile() throws IOException;
+	
+	    Resource createRelative(String relativePath) throws IOException;
+	
+	    String getFilename();
+	
+	    String getDescription();
+	
+	}
+
+核心就是关注Spring如何加载系统中的File,是通过classpath方式，file：//方式还是URL方式？
+
+额外注意，AbstractApplicationContext extends DefaultResourceLoader ,DefaultResourceLoader 实现如下：
+
+
+	public class DefaultResourceLoader implements ResourceLoader {
+
+		/**看看这个实现*/
+		public Resource getResource(String location) {
+	        Assert.notNull(location, "Location must not be null");
+	        Iterator var2 = this.getProtocolResolvers().iterator();
+	
+	        Resource resource;
+	        do {
+	            if (!var2.hasNext()) {
+	                if (location.startsWith("/")) {//实际也是classpath
+	                    return this.getResourceByPath(location);
+	                }
+	
+	                if (location.startsWith("classpath:")) {
+	                    return new ClassPathResource(location.substring("classpath:".length()), this.getClassLoader());
+	                }
+	
+	                try {
+	                    URL url = new URL(location);
+						//这里根据location前缀是file://or http分别返回FileUrlResource or UrlResource
+	                    return (Resource)(ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
+	                } catch (MalformedURLException var5) {
+	                    return this.getResourceByPath(location);
+	                }
+	            }
+	
+	            ProtocolResolver protocolResolver = (ProtocolResolver)var2.next();
+	            resource = protocolResolver.resolve(location, this);
+	        } while(resource == null);
+	
+	        return resource;
+	    }
+	}
+
+###AOP
+AOP在Spring框架中用于：
+
+提供声明式企业服务。此类服务中最重要的是 声明式事务管理。
+
+让用户实现自定义方面，并通过AOP补充其对OOP的使用。
+
+Spring AOP当前仅支持方法执行连接点（建议在Spring Bean上执行方法）。尽管可以在不破坏核心Spring AOP API的情况下添加对字段拦截的支持，但并未实现字段拦截。如果需要建议**字段**访问和更新连接点，请考虑使用诸如AspectJ之类的语言。
+
+Spring AOP默认是基于JDK的动态代理，因此会拦截Public方法，而如果选择CGLIB代理实现类的话，除了private方法，几乎都可以代理实现。
+
+看到5.4.5
