@@ -176,3 +176,20 @@ Spring AOP当前仅支持方法执行连接点（建议在Spring Bean上执行�
 Spring AOP默认是基于JDK的动态代理，因此会拦截Public方法，而如果选择CGLIB代理实现类的话，除了private方法，几乎都可以代理实现。
 
 看到5.4.5
+
+
+####WEB MVC
+
+	
+	public class MyWebApplicationInitializer implements WebApplicationInitializer {
+
+	    @Override
+	    public void onStartup(ServletContext container) {
+	        XmlWebApplicationContext appContext = new XmlWebApplicationContext();
+	        appContext.setConfigLocation("/WEB-INF/spring/dispatcher-config.xml");
+	
+	        ServletRegistration.Dynamic registration = container.addServlet("dispatcher", new DispatcherServlet(appContext));
+	        registration.setLoadOnStartup(1);
+	        registration.addMapping("/");
+	    }
+	}
