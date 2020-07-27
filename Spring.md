@@ -65,8 +65,12 @@ TransactionDefinition 定义了事务的基本属性：包含事务隔离级别/
 
 MYSQL默认是REPEATABLE_READ，mysql是READ_COMMITTED。
 
+Spring 的TransactionDefinition 定义的隔离级别会应用于当前事务，因此它会覆盖掉数据库的默认隔离级别。
+
 编程式事务处理和声明式事务处理。一般常用声明式事务处理就够了，简单明了，对代码侵入小。
 
+
+方法上的tranactional注解优先级高于类上的注解。
 
 ###Spring IOC
 ioc容器:
