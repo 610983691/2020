@@ -26,4 +26,14 @@
 参考[https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-examples/nacos-example/nacos-discovery-example/readme.md](https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-examples/nacos-example/nacos-discovery-example/readme.md "服务注册")	文档，将gateway服务注册到nacos。查看控制台如下:
 
 	
-![gateway](doc_pic/gateway_register.png "gateway注册")						
+![gateway](doc_pic/gateway_register.png "gateway注册")		
+
+
+###使用
+
+
+1. 命名空间
+
+	`参考官方手册，我的理解是这个命名空间是用来区分不同配置的。类似于application-dev,application-prod,application-test等，用于实现同一配置项的不同配置值，方便开发和测试使用`		
+	注意：命名空间配置在使用是必须是ID： spring.cloud.nacos.discovery.namespace=id.
+2.	
