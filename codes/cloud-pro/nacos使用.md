@@ -36,4 +36,21 @@
 
 	`参考官方手册，我的理解是这个命名空间是用来区分不同配置的。类似于application-dev,application-prod,application-test等，用于实现同一配置项的不同配置值，方便开发和测试使用`		
 	注意：命名空间配置在使用是必须是ID： spring.cloud.nacos.discovery.namespace=id.
-2.	
+
+###配置中心使用
+参考：
+
+[https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-docs/src/main/asciidoc/nacos-config.adoc](https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-docs/src/main/asciidoc/nacos-config.adoc "nacos配置中心")
+
+[http://blog.didispace.com/spring-cloud-alibaba-nacos-config-2/](http://blog.didispace.com/spring-cloud-alibaba-nacos-config-2/ "nacos 配置中心")
+
+[https://blog.csdn.net/qq_33619378/article/details/98634900](https://blog.csdn.net/qq_33619378/article/details/98634900 "配置中心隔离")
+
+1. 配置中心直接使用规则
+
+
+2. 共享配置
+
+3. 配置项生效顺序
+
+ 	`后面的配置项会覆盖前面的` 
