@@ -11,8 +11,22 @@ public class GatewayApplication {
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext applicationContext =SpringApplication.run(GatewayApplication.class, args);
-		 String userName = applicationContext.getEnvironment().getProperty("tongjie");
-		 System.err.println("user name :" +userName);
+		while(true) {
+			 System.out.println("=======================" );
+			String userName = applicationContext.getEnvironment().getProperty("DISABLE_REFRESH_GROUP");
+			 System.out.println("DISABLE_REFRESH_GROUP :" +userName);
+			 String REFRESH_GROUP = applicationContext.getEnvironment().getProperty("REFRESH_GROUP");
+			 System.out.println("REFRESH_GROUP :" +REFRESH_GROUP);
+			 String REFRESH_GROUP_PRODUCT_SHARED = applicationContext.getEnvironment().getProperty("db.name");
+			 System.out.println("REFRESH_GROUP_PRODUCT_SHARED :" +REFRESH_GROUP_PRODUCT_SHARED);
+			 try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 }

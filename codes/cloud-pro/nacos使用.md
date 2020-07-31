@@ -40,6 +40,10 @@
 ###配置中心使用
 参考：
 
+[https://github.com/alibaba/spring-cloud-alibaba/wiki/Nacos-config](https://github.com/alibaba/spring-cloud-alibaba/wiki/Nacos-config "config 使用手册")
+
+[https://github.com/alibaba/spring-cloud-alibaba/issues/141](https://github.com/alibaba/spring-cloud-alibaba/issues/141 "官方对于共享配置实现的讨论")
+
 [https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-docs/src/main/asciidoc/nacos-config.adoc](https://github.com/alibaba/spring-cloud-alibaba/blob/master/spring-cloud-alibaba-docs/src/main/asciidoc/nacos-config.adoc "nacos配置中心")
 
 [http://blog.didispace.com/spring-cloud-alibaba-nacos-config-2/](http://blog.didispace.com/spring-cloud-alibaba-nacos-config-2/ "nacos 配置中心")
@@ -54,3 +58,68 @@
 3. 配置项生效顺序
 
  	`后面的配置项会覆盖前面的` 
+
+####结合公司实际情况，实际搭建的nacos配置方式和规则
+
+0.目前公司级的配置，应该还用不上角色管理等。一个人（几个人）共用一个账号管理配置即可。
+
+1.公司的开发会有一套开发环境/测试/生产各一套环境，开发和测试nacos不共用。公司搭建两套nacos服务。
+
+2.公司多个产品在开发阶段时，都往同一个开发的nacos环境注册和添加配置。这样在生产时，多个产品也是可以往同一套nacos去注册，简化了各个环境中的nacos数量和配置。
+
+3.区分各个产品的配置时，使用namcespace来区分。这样各个产品都往自己的namespace注册，互不干扰。（产品间应当是完全隔离的，多个产品原则上不应该使用相同的配置。即使他们都在同一个注册中心/配置中心进行注册。）
+而一个产品可能会包含多个应用，多个应用间的配置是可以有共用部分的。
+
+4.创建GROUP:
+
+- REFRESH_GROUP_PRODUCT_SHARED
+	
+	> 支持动态刷新的配置文件，必须添加在该组中。并且这些配置还是可以在产品间共享的
+
+
+- DISABLE_REFRESH_GROUP_PRODUCT_SHARED 
+	
+	> 不支持动态刷新的配置文件，必须添加在该组中，这些配置还可以是在产品间共享的。如果配置不共享，就不建议添加到该组。
+
+
+- REFRESH_GROUP 
+	
+	> 支持动态刷新的配置文件，必须添加在该组中。（一般是某个应用才独有的配置）
+
+- DISABLE_REFRESH_GROUP
+
+	> 不支持动态刷新的配置文件，必须添加在该组中。（一般是某个应用独有的配置）
+
+5.namespace下，多个应用共享配置的配置方式和配置规则
+	
+	>spring.application.name=opensource-service-provider
+	spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+	
+	# config external configuration
+	# 1、Data Id 在默认的组 DEFAULT_GROUP,不支持配置的动态刷新
+	spring.cloud.nacos.config.extension-configs[0].data-id=ext-config-common01.properties
+	
+	# 2、Data Id 不在默认的组，不支持动态刷新
+	spring.cloud.nacos.config.extension-configs[1].data-id=ext-config-common02.properties
+	spring.cloud.nacos.config.extension-configs[1].group=GLOBALE_GROUP
+	
+	# 3、Data Id 既不在默认的组，也支持动态刷新
+	spring.cloud.nacos.config.extension-configs[2].data-id=ext-config-common03.properties
+	spring.cloud.nacos.config.extension-configs[2].group=REFRESH_GROUP
+	spring.cloud.nacos.config.extension-configs[2].refresh=true
+
+优先级
+
+	多个 Data Id 同时配置时，他的优先级关系是 spring.cloud.nacos.config.extension-configs[n].data-id 其中 n 的值越大，优先级越高。
+	
+	spring.cloud.nacos.config.extension-configs[n].data-id 的值必须带文件扩展名，文件扩展名既可支持 properties，又可以支持 yaml/yml。 此时 spring.cloud.nacos.config.file-extension 的配置对自定义扩展配置的 Data Id 文件扩展名没有影响。
+
+
+
+样例参考：
+![gateway](doc_pic/nacos_config0.png "配置中心使用")
+![gateway](doc_pic/nacos_config1.png "配置中心使用")	
+![gateway](doc_pic/nacos_config2.png "配置中心使用")	
+![gateway](doc_pic/nacos_config3.png "配置中心使用")	
+
+这样，开发时只需改动dev/prod/test即可切换到不同配置。

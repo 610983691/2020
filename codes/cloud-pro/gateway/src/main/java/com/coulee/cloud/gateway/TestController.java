@@ -11,16 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RefreshScope
 public class TestController {
 
-	@Value("${tongjie}")
-	private String  config;
 	
 	@RequestMapping("/echo")
 	public String echo() {
 		return "echo:"+LocalDateTime.now();
 	}
 	
-	@RequestMapping("/config")
-	public String config() {
-		return config;
-	}
 }
