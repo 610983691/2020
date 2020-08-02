@@ -23,3 +23,41 @@ Spring Cloud Gateway 的 Filter 分为两种：GatewayFilter 与 GlobalFilter。
 
 
 retelimiter,采用令牌桶算法来进行限速。
+
+
+###使用
+1.更好的使用实践是采用动态路由配置，因此把路由配置都写到配置中心去。这样可以动态的通过更改配置中心的配置来控制路由转发。
+
+
+###实践
+1.建立一个springboot 项目，用作service 服务提供者，对外提供服务。
+参考代码中test工程。
+
+2.在nacos中，增加gateway 网关相应的配置。
+
+	#默认采用注册中心注册的服务名方式来进行路由转发
+	spring.cloud.gateway.discovery.locator.enabled=true
+	spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+	logging.level.org.springframework.cloud.gateway=debug
+
+
+
+> 采用 http://localhost:8080/providor/echo?param=123 方式访问providor服务。
+
+3.默认的路由转发方式是负载均衡的吗？（是）
+
+> 通过copy两个test.jar服务，发现默认的路由转发，已经是负载均衡的，默认是轮询的方式切换访问
+
+4.权重设置
+
+> nacos 中设置权重目前还未生效。[https://nacos.io/zh-cn/docs/faq.html](https://nacos.io/zh-cn/docs/faq.html "权重未生效")
+这是由于nacos的权重配置默认没有启用，因此需要手动的在gateway网关启动时，把NacosRule 注入到容器中。
+在gateway中添加如下配置：
+
+	//nacos的默认实现不是轮询，具体算法目前还没看明白。
+	@Bean
+    public IRule loadBalanceNacosRule(){
+      return new NacosRule();
+    }
+
+这样即可在nacos中动态的修改权重，对应用进行上下线处理。
