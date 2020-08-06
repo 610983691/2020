@@ -40,3 +40,10 @@
 
 3. 通常，在目前的使用场景下，我只需要把网关接入到sentinel中就行
 
+
+#####配置
+对于流量进行限流配置:
+
+![sentinelconfig](doc_pic/sentinelconfig.png "sentinel限流配置")	
+
+不断的刷新，可以看到1秒只能有1个正常的响应，其他请求都被限流。
