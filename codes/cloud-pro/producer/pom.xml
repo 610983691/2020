@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.coulee.services</groupId>
-	<artifactId>test</artifactId>
+	<artifactId>producer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>test</name>
+	<name>producer</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
