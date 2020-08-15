@@ -42,7 +42,7 @@ public class SentinelConfig {
 	        // max avg rt of all request is 10 ms
 	        rule.setAvgRt(100);
 	        // max total qps is 20
-	        rule.setQps(2);
+	        rule.setQps(20);
 	        // max parallel working thread is 10
 	        rule.setMaxThread(10);
 

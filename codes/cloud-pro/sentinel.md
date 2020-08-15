@@ -103,4 +103,5 @@
 
 [https://mrbird.cc/Spring-Cloud-Alibaba-Sentinel-SentinelResource.html](https://mrbird.cc/Spring-Cloud-Alibaba-Sentinel-SentinelResource.html "异常回退")
 
+3.参考demo
 

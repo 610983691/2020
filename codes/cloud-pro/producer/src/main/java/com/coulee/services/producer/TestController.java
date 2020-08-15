@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class TestController {
 	
@@ -23,6 +26,7 @@ public class TestController {
 	
 	@RequestMapping("/echo")
 	public String echo() {
+		log.info("rcv req");
 		return "hello ,im provider:"+ context.getEnvironment().getProperty("local.server.port") +"\n config is："+test_client +", share.db db.name config is :"+dbname;
 	}
 	
