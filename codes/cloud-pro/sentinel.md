@@ -95,7 +95,16 @@
 这是默认的限流，还可以在sentinel控制台来控制CPU使用率，并发线程数，总的QPS修改配置值。
 
 
-####熔断降级
+思考：限流还是通过服务来限流比较合理？网关处限流好还是各个服务限流好？
+
+> 网关不添加流控规则，但是可以加入到sentinel的控制台中，可以查看网关整体的状态。和当前的请求负载
+
+> 同时，在各个服务提供方添加一个默认的系统限流规则，保证单个服务不过载就行。可以参考consumer/producer.
+
+
+####降级
+
+降级：就是服务崩溃了，所以降级逻辑应该应用在消费者（调用者）那里，加在服务提供者本身是毫无意义的，因为服务已经断开了。
 
 1.使用@SentinelResource 注解
 
@@ -103,5 +112,57 @@
 
 [https://mrbird.cc/Spring-Cloud-Alibaba-Sentinel-SentinelResource.html](https://mrbird.cc/Spring-Cloud-Alibaba-Sentinel-SentinelResource.html "异常回退")
 
-3.参考demo
+3.降级规则
+
+手动通过 API 修改比较直观，可以通过以下几个 API 修改不同的规则：
+
+>FlowRuleManager.loadRules(List<FlowRule> rules); // 修改流控规则
+>
+>DegradeRuleManager.loadRules(List<DegradeRule> rules); // 修改降级规则
+手动修改规则（硬编码方式）一般仅用于测试和演示，生产上一般通过动态规则源的方式来动态管理规则。
+
+参考文档：
+
+[https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95](https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95 "降级规则")
+
+![降级配置](doc_pic/sentineldemo.png "sentinel降级")
+
+####熔断
+熔断是指对某些接口返回异常超过一定比例/数量（根据策略），后续在某一时间窗内对该接口的请求都直接快速返回失败。
+熔断规则的配置应该是是控制台进行配置：可以针对某一接口。
+
+![降级配置](doc_pic/sentinelconfig3.png "sentinel降级")
+
+这样配置后，当远端接口返回一个错误给调用方后。调用方发现该接口满足了降级规则，因此在配置的70秒内都会直接对该接口调用返回错误。
+![降级配置](doc_pic/sentinelconfig4.png "sentinel降级")
+
+能够自动的配置某一类接口吗？通过系统配置
+
+更好的方法是在服务中配置，这样每个服务都自动有配置值。
+
+[https://blog.csdn.net/xiongxianze/article/details/87572916](https://blog.csdn.net/xiongxianze/article/details/87572916 "参考")
+
+
+###基于nacos的限流、降级规则获取
+
+推模式：规则中心统一推送，客户端通过注册监听器的方式时刻监听变化，比如使用 Nacos、Zookeeper 等配置中心。这种方式有更好的实时性和一致性保证。
+示例代码：
+	
+	// remoteAddress 代表 Nacos 服务端的地址
+	// groupId 和 dataId 对应 Nacos 中相应配置
+	ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new NacosDataSource<>(remoteAddress, groupId, dataId,
+	    source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
+	FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+
+
+	private static void loadRules() {
+        ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new NacosDataSource<>(remoteAddress, groupId, dataId,
+                source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {
+                }));
+        FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+    }
+
+关键代码需要在容器启动的时候注入，关键在于 配置。这个配置规则有要求吗？这里的是限流规则，降级规则在nacos配置中心是什么格式呢？
+
+
 

@@ -39,7 +39,8 @@ public class ConsumeController {
 	@SentinelResource(fallback = "fallback",blockHandler ="blockHandler")
 	@RequestMapping("/remoterandom")
 	public String remoterandom() {
-		return "remote===="+producer.random();
+		String rst = "remote===="+producer.random();
+		return rst;
 	}
 	
 	/***
