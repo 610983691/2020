@@ -165,4 +165,32 @@
 关键代码需要在容器启动的时候注入，关键在于 配置。这个配置规则有要求吗？这里的是限流规则，降级规则在nacos配置中心是什么格式呢？
 
 
+####限流和降级规则的nacos集成
+参考文档
+
+[https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel#%E8%A7%84%E5%88%99%E7%AE%A1%E7%90%86%E5%8F%8A%E6%8E%A8%E9%80%81](https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel#%E8%A7%84%E5%88%99%E7%AE%A1%E7%90%86%E5%8F%8A%E6%8E%A8%E9%80%81 "规则管理及推送")
+
+[https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95](https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95 "动态规则扩展")
+
+
+1.使用nacos做数据源
+
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_1.png "sentinel使用nacos推模式配置规则")
+
+2.代码及配置
+	
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_2.png "sentinel使用nacos推模式配置规则")
+
+
+默认 Nacos 适配的 dataId 和 groupId 约定如下：
+
+groupId: SENTINEL_GROUP
+流控规则 dataId: {appName}_flow_rules，比如应用名为 appA，则 dataId 为 appA_flow_rules
+
+因此配置中心的配置为
+
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_3.png "sentinel使用nacos推模式配置规则")
+
+
+测试：
 
