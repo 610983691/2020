@@ -165,19 +165,19 @@
 关键代码需要在容器启动的时候注入，关键在于 配置。这个配置规则有要求吗？这里的是限流规则，降级规则在nacos配置中心是什么格式呢？
 
 
-####限流和降级规则的nacos集成
-参考文档
+##限流和降级规则的nacos集成
+###参考文档
 
 [https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel#%E8%A7%84%E5%88%99%E7%AE%A1%E7%90%86%E5%8F%8A%E6%8E%A8%E9%80%81](https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel#%E8%A7%84%E5%88%99%E7%AE%A1%E7%90%86%E5%8F%8A%E6%8E%A8%E9%80%81 "规则管理及推送")
 
 [https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95](https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95 "动态规则扩展")
 
 
-1.使用nacos做数据源
+####1.使用nacos做数据源
 
 ![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_1.png "sentinel使用nacos推模式配置规则")
 
-2.代码及配置
+####2.代码及配置
 	
 ![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_2.png "sentinel使用nacos推模式配置规则")
 
@@ -192,5 +192,43 @@ groupId: SENTINEL_GROUP
 ![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_3.png "sentinel使用nacos推模式配置规则")
 
 
-测试：
+测试，通过nacos修改配置能够自动的同步到sentinel控制台展示。
+
+
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_5.png "sentinel使用nacos推模式配置规则")
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_4.png "sentinel使用nacos推模式配置规则")
+
+####限流方式
+
+借用官网的图，当sentinel挂掉后，限流应该还是会起作用。
+这是因为各个服务提供者是一个sentinel的客户端，sentinel客户端是通过拉取nacos的配置规则来进行限流、降级。
+而sentinel的dashboard控制台只是一个展示的界面，sentinel的规则也是来自于nacos
+
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_10.png "sentinel使用nacos推模式配置规则")
+
+测试，不断刷新页面：
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_6.png "sentinel使用nacos推模式配置规则")
+
+再次通过nacos修改配置，发现修改配置后，限流速率已经修改QPS=2，一秒内刷新2次就发生限流：
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_7.png "sentinel使用nacos推模式配置规则")
+![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_8.png "sentinel使用nacos推模式配置规则")
+
+
+
+####客户端直连方式时
+这个配置是从客户端代码里边自带上来的，在dashboard修改配置规则时，直接对客户端生效。
+
+停止掉sentinel的dashboard控制台，限流规则仍然生效，限流的值仍然是dashboard最后一次修改的值。
+再次启动sentinel的dashboard控制台，限流规则还是之前的。
+
+这是因为：
+sentinel启动时，当有流量访问时，sentinel的规则是从客户端内存里边获取的。当在直连方式dashboard控制台修改规则时，规则会实时的同步到sentinel客户端的内存中。 客户端实际是根据自己内存中的规则来进行限流的。
+客户端直连方式并不推荐，至少应该使用nacos配置中心来做规则的持久化，让sentinel客户端直接和nacos打交道就好。这也是官方那个图的解释。
+
+
+![sentinel客户端直连](doc_pic/sentinel_nacos_11.png "sentinel客户端直连")
+
+
+
+
 
