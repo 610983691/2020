@@ -214,6 +214,15 @@ groupId: SENTINEL_GROUP
 ![sentinel使用nacos推模式配置规则](doc_pic/sentinel_nacos_8.png "sentinel使用nacos推模式配置规则")
 
 
+###nacos<==>sentinel
+通过nacos配置的值是格式化好的，查看入库时的数据是带回车的，所以格式化比较好看。等sentinel回写到nacos的时候，由于sentinel中是fastjson序列化的数据，所以json变成了一行文本格式。未格式化，其实有点儿不方便修改配置。不过既然使用了nacos的配置，那么使用sentinel修改是一个更好的选择，毕竟是一个可视化的界面。更不容易出错些
+
+![nacos<==>sentinel](doc_pic/sentinel_nacos_12.png "nacos<==>sentinel")
+
+![nacos<==>sentinel](doc_pic/sentinel_nacos_13.png "nacos<==>sentinel")
+
+![nacos<==>sentinel](doc_pic/sentinel_nacos_14.png "nacos<==>sentinel")
+
 
 ####客户端直连方式时
 这个配置是从客户端代码里边自带上来的，在dashboard修改配置规则时，直接对客户端生效。
