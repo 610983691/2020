@@ -37,16 +37,14 @@ public class SystemRuleNacosProvider implements DynamicRuleProvider<List<SystemR
 
     @Autowired
     private ConfigService configService;
-    @Autowired
-    private Converter<String, List<SystemRuleEntity>> converter;
 
     @Override
     public List<SystemRuleEntity> getRules(String appName) throws Exception {
-        String rules = configService.getConfig(appName + NacosConfigUtil.FLOW_DATA_ID_POSTFIX,
+        String rules = configService.getConfig(appName + NacosConfigUtil.SYSTEM_RULE_DATA_ID_POSTFIX,
             NacosConfigUtil.GROUP_ID, 3000);
         if (StringUtil.isEmpty(rules)) {
             return new ArrayList<>();
         }
-        return converter.convert(rules);
+        return NacosConfigUtil.jsonToList(rules,SystemRuleEntity.class);
     }
 }

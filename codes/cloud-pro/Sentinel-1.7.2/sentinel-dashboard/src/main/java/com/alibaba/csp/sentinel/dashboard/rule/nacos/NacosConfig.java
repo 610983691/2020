@@ -42,16 +42,6 @@ public class NacosConfig {
     @Value("${nacos.namespace}")
     private String namespace;
 
-    @Bean
-    public Converter<List<RuleEntity>, String> flowRuleEntityEncoder() {
-        return JSON::toJSONString;
-    }
-
-    @Bean
-    public Converter<String, List<RuleEntity>> flowRuleEntityDecoder() {
-        return s -> JSON.parseArray(s, RuleEntity.class);
-    }
-    
     
 
     @Bean

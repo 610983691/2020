@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
@@ -34,20 +35,19 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component("degradeRuleNacosProvider")
-public class DegradeRuleNacosProvider implements DynamicRuleProvider<List<RuleEntity>> {
+public class DegradeRuleNacosProvider implements DynamicRuleProvider<List<DegradeRuleEntity>> {
 
     @Autowired
     private ConfigService configService;
-    @Autowired
-    private Converter<String, List<RuleEntity>> converter;
+    
 
     @Override
-    public List<RuleEntity> getRules(String appName) throws Exception {
-        String rules = configService.getConfig(appName + NacosConfigUtil.FLOW_DATA_ID_POSTFIX,
+    public List<DegradeRuleEntity> getRules(String appName) throws Exception {
+        String rules = configService.getConfig(appName + NacosConfigUtil.DEGRADE_RULE_DATA_ID_POSTFIX,
             NacosConfigUtil.GROUP_ID, 3000);
         if (StringUtil.isEmpty(rules)) {
             return new ArrayList<>();
         }
-        return converter.convert(rules);
+        return NacosConfigUtil.jsonToList(rules,DegradeRuleEntity.class);
     }
 }

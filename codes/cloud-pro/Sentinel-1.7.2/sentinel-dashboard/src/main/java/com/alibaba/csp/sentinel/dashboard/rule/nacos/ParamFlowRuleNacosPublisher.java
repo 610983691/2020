@@ -36,8 +36,6 @@ public class ParamFlowRuleNacosPublisher implements DynamicRulePublisher<List<Pa
 
     @Autowired
     private ConfigService configService;
-    @Autowired
-    private Converter<List<ParamFlowRuleEntity>, String> converter;
 
     @Override
     public void publish(String app, List<ParamFlowRuleEntity> rules) throws Exception {
@@ -45,7 +43,7 @@ public class ParamFlowRuleNacosPublisher implements DynamicRulePublisher<List<Pa
         if (rules == null) {
             return;
         }
-        configService.publishConfig(app + NacosConfigUtil.FLOW_DATA_ID_POSTFIX,
-            NacosConfigUtil.GROUP_ID, converter.convert(rules));
+        configService.publishConfig(app + NacosConfigUtil.PARAM_FLOW_RULE_DATA_ID_POSTFIX,
+            NacosConfigUtil.GROUP_ID, NacosConfigUtil.listToJson(rules));
     }
 }

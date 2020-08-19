@@ -37,8 +37,6 @@ public class SystemRuleNacosPublisher implements DynamicRulePublisher<List<Syste
 
     @Autowired
     private ConfigService configService;
-    @Autowired
-    private Converter<List<SystemRuleEntity>, String> converter;
 
     @Override
     public void publish(String app, List<SystemRuleEntity> rules) throws Exception {
@@ -46,7 +44,7 @@ public class SystemRuleNacosPublisher implements DynamicRulePublisher<List<Syste
         if (rules == null) {
             return;
         }
-        configService.publishConfig(app + NacosConfigUtil.FLOW_DATA_ID_POSTFIX,
-            NacosConfigUtil.GROUP_ID, converter.convert(rules));
+        configService.publishConfig(app + NacosConfigUtil.SYSTEM_RULE_DATA_ID_POSTFIX,
+            NacosConfigUtil.GROUP_ID, NacosConfigUtil.listToJson(rules));
     }
 }
