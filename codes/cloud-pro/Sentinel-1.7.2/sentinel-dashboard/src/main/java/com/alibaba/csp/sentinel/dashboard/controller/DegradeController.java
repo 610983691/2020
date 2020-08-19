@@ -222,6 +222,7 @@ public class DegradeController {
         try {
         	 rulePublisher.publish(app, rules);
 		} catch (Exception e) {//因为没事务，所以可以吞异常
+			logger.info("publish degrade rules fail ",e);
 			return false;
 		}
         return true;

@@ -46,11 +46,16 @@ public final class NacosConfigUtil {
      */
     public static final String SYSTEM_RULE_DATA_ID_POSTFIX = "-system-rules.json";
     
-    
     /***
      *降级规则
      */
     public static final String DEGRADE_RULE_DATA_ID_POSTFIX = "-degrade-rules.json";
+    
+    /***
+     *授权规则
+     */
+    public static final String AUTHORITY_RULE_DATA_ID_POSTFIX = "-authority-rules.json";
+    
     
     public static final String CLUSTER_MAP_DATA_ID_POSTFIX = "-cluster-map";
 

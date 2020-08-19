@@ -256,7 +256,7 @@ public class SystemController {
         try {
         	rulePublisher.publish(app, rules);
 		} catch (Exception e) {
-			logger.error("publish system rules fail after rule delete",e);
+			logger.error("publish system rules fail ",e);
 		}
         return true;
     }
