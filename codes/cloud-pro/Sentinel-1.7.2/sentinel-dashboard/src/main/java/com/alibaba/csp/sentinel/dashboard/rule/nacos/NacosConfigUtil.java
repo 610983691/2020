@@ -23,6 +23,7 @@ import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
  * @author Eric Zhao
@@ -30,56 +31,56 @@ import com.alibaba.fastjson.JSONObject;
  */
 public final class NacosConfigUtil {
 
-    public static final String GROUP_ID = "SENTINEL_GROUP";
-    
-    /***
-     * 流控规则
-     */
-    public static final String FLOW_RULE_DATA_ID_POSTFIX = "-flow-rules.json";
-    /***
-     * 参数限流规则
-     */
-    public static final String PARAM_FLOW_RULE_DATA_ID_POSTFIX = "-param-flow-rules.json";
-    
-    /***
-     *系统规则
-     */
-    public static final String SYSTEM_RULE_DATA_ID_POSTFIX = "-system-rules.json";
-    
-    /***
-     *降级规则
-     */
-    public static final String DEGRADE_RULE_DATA_ID_POSTFIX = "-degrade-rules.json";
-    
-    /***
-     *授权规则
-     */
-    public static final String AUTHORITY_RULE_DATA_ID_POSTFIX = "-authority-rules.json";
-    
-    
-    public static final String CLUSTER_MAP_DATA_ID_POSTFIX = "-cluster-map";
+	public static final String GROUP_ID = "SENTINEL_GROUP";
 
-    /**
-     * cc for `cluster-client`
-     */
-    public static final String CLIENT_CONFIG_DATA_ID_POSTFIX = "-cc-config";
-    /**
-     * cs for `cluster-server`
-     */
-    public static final String SERVER_TRANSPORT_CONFIG_DATA_ID_POSTFIX = "-cs-transport-config";
-    public static final String SERVER_FLOW_CONFIG_DATA_ID_POSTFIX = "-cs-flow-config";
-    public static final String SERVER_NAMESPACE_SET_DATA_ID_POSTFIX = "-cs-namespace-set";
+	/***
+	 * 流控规则
+	 */
+	public static final String FLOW_RULE_DATA_ID_POSTFIX = "-flow-rules.json";
+	/***
+	 * 参数限流规则
+	 */
+	public static final String PARAM_FLOW_RULE_DATA_ID_POSTFIX = "-param-flow-rules.json";
 
-    private NacosConfigUtil() {}
-    
-    public static String listToJson(List<? extends RuleEntity> list) {
-        return JSON.toJSONString(list);
-    }
-    
-    public static <T> List<T> jsonToList(String rules,Class<T> clazz) {
-    	 if (StringUtil.isEmpty(rules)) {
-             return new ArrayList<>();
-         }
-        return JSON.parseArray(rules, clazz);
-    }
+	/***
+	 * 系统规则
+	 */
+	public static final String SYSTEM_RULE_DATA_ID_POSTFIX = "-system-rules.json";
+
+	/***
+	 * 降级规则
+	 */
+	public static final String DEGRADE_RULE_DATA_ID_POSTFIX = "-degrade-rules.json";
+
+	/***
+	 * 授权规则
+	 */
+	public static final String AUTHORITY_RULE_DATA_ID_POSTFIX = "-authority-rules.json";
+
+	public static final String CLUSTER_MAP_DATA_ID_POSTFIX = "-cluster-map";
+
+	/**
+	 * cc for `cluster-client`
+	 */
+	public static final String CLIENT_CONFIG_DATA_ID_POSTFIX = "-cc-config";
+	/**
+	 * cs for `cluster-server`
+	 */
+	public static final String SERVER_TRANSPORT_CONFIG_DATA_ID_POSTFIX = "-cs-transport-config";
+	public static final String SERVER_FLOW_CONFIG_DATA_ID_POSTFIX = "-cs-flow-config";
+	public static final String SERVER_NAMESPACE_SET_DATA_ID_POSTFIX = "-cs-namespace-set";
+
+	private NacosConfigUtil() {
+	}
+
+	public static String listToJson(List<? extends RuleEntity> list) {
+		return JSON.toJSONString(list, SerializerFeature.PrettyFormat, SerializerFeature.WriteDateUseDateFormat);
+	}
+
+	public static <T> List<T> jsonToList(String rules, Class<T> clazz) {
+		if (StringUtil.isEmpty(rules)) {
+			return new ArrayList<>();
+		}
+		return JSON.parseArray(rules, clazz);
+	}
 }
