@@ -1,4 +1,4 @@
-package com.coulee.comsumer;
+package com.coulee.services.producer;
 
 import java.util.List;
 import java.util.Properties;
