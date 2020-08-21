@@ -176,3 +176,8 @@
 
 ###六、feignfallback使用
 
+1.feign 默认是轮询的
+
+2.初步理解，sentinelresource 的作用是定义资源名，定义fallback等。那它就替代了一部分feign的功能。因此，我们在系统内不添加sentinelresource注解，直接使用feignclient来测试限流与降级。（开启feignenable），再次进行测试。
+
+###七、producer添加代码

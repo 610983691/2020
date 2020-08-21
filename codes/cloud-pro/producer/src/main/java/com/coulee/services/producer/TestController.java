@@ -43,4 +43,16 @@ public class TestController {
 		return getMsg() +"\n";
 	}
 	
+	@RequestMapping("/feign")
+	public String feign() {
+		return getMsg() +"/feign";
+	}
+	
+	@RequestMapping("/feignerr")
+	public String feignerr() {
+		if(System.currentTimeMillis()%4 == 0) {//随机来看4次有一次返回错误
+			throw new RuntimeException(getMsg()+",/feignerr 故意抛出异常");
+		}
+		return getMsg() +"/feignerr";
+	}
 }

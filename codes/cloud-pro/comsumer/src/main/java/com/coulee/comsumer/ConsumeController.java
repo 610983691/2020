@@ -1,6 +1,7 @@
 package com.coulee.comsumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +19,31 @@ public class ConsumeController {
 
 	@Autowired
 	private ProducerService producer;
+	
 
 	@Autowired
 	private ApplicationContext context;
+	
+	/**
+	 * consumer的本地调用
+	 * 
+	 * @return
+	 */
+	@RequestMapping("/feign")
+	public String feign()  {
+		return getMsg()+"->"+producer.feign();
+	}
+	/**
+	 * consumer的本地调用
+	 * 
+	 * @return
+	 */
+	@RequestMapping("/feignerr")
+	public String feignerr()  {
+		return getMsg()+"->"+producer.feignerr();
+	}
+	
+	
 	
 	/**
 	 * consumer的本地调用
