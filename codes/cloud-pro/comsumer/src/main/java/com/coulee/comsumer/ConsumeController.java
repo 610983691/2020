@@ -67,7 +67,7 @@ public class ConsumeController {
 	 * @return
 	 */
 	@RequestMapping("/remoteecho")
-	@SentinelResource(value = "remoteecho2", fallback = "fallback", blockHandler = "blockHandler")
+//	@SentinelResource(value = "remoteecho2", fallback = "fallback", blockHandler = "blockHandler")
 	public String remoteInvoke() {
 		String rst = getMsg() +"，invoke->" + producer.echo();
 		return rst;
@@ -76,7 +76,7 @@ public class ConsumeController {
 	/**
 	 * 这个方法远端会抛业务异常，也会抛限流异常
 	 */
-	@SentinelResource(fallback = "fallback", blockHandler = "blockHandler")
+//	@SentinelResource(fallback = "fallback", blockHandler = "blockHandler")
 	@RequestMapping("/remoterandom")
 	public String remoterandom() {
 		String rst = getMsg() +"，invoke->" +producer.random();

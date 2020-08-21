@@ -4,6 +4,9 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 
 @FeignClient(value="producer",fallback=ProducerService2Fallback.class,configuration = FeignConfiguration2.class)
 public interface ProducerService {
@@ -34,7 +37,7 @@ public interface ProducerService {
 	 * 访问producer feignerr接口
 	 * @return
 	 */
-	@RequestMapping("/feignerr")
+	@RequestMapping(value="/feignerr",method = RequestMethod.GET)
 	public String feignerr() ;
 }
 class FeignConfiguration2 {
