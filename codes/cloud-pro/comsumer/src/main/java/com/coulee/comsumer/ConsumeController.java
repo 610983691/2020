@@ -1,6 +1,7 @@
 package com.coulee.comsumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,9 @@ public class ConsumeController {
 	@Autowired
 	private ProducerService producer;
 
+	@Autowired
+	private ApplicationContext context;
+	
 	/**
 	 * consumer的本地调用
 	 * 
@@ -25,7 +29,11 @@ public class ConsumeController {
 	 */
 	@RequestMapping("/local")
 	public String local() {
-		String rst = "local====";
+		return getMsg();
+	}
+	
+	private String getMsg() {
+		String rst = context.getEnvironment().getProperty("spring.application.name")+":"+context.getEnvironment().getProperty("local.server.port");
 		return rst;
 	}
 
@@ -38,7 +46,7 @@ public class ConsumeController {
 	@RequestMapping("/remoteecho")
 	@SentinelResource(value = "remoteecho2", fallback = "fallback", blockHandler = "blockHandler")
 	public String remoteInvoke() {
-		String rst = "remote====" + producer.echo();
+		String rst = getMsg() +"，invoke->" + producer.echo();
 		return rst;
 	}
 
@@ -48,7 +56,7 @@ public class ConsumeController {
 	@SentinelResource(fallback = "fallback", blockHandler = "blockHandler")
 	@RequestMapping("/remoterandom")
 	public String remoterandom() {
-		String rst = "remote====" + producer.random();
+		String rst = getMsg() +"，invoke->" +producer.random();
 		return rst;
 	}
 

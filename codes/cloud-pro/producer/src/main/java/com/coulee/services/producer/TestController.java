@@ -21,18 +21,26 @@ public class TestController {
 	@Autowired
 	private ApplicationContext context;
 	
+	@RequestMapping("/local")
+	public String local() {
+		return getMsg();
+	}
+	
 	@RequestMapping("/echo")
 	public String echo() {
-		log.info("rcv req");
-		return "hello ,im provider:"+ context.getEnvironment().getProperty("local.server.port") +"\n config is："+test_client +", share.db db.name config is :"+dbname;
+		return getMsg() +"\n config is："+test_client +", share.db db.name config is :"+dbname;
+	}
+	private String getMsg() {
+		String rst = context.getEnvironment().getProperty("spring.application.name")+":"+context.getEnvironment().getProperty("local.server.port");
+		return rst;
 	}
 	
 	@RequestMapping("/random")
 	public String random() {
 		if(System.currentTimeMillis()%4 == 0) {//随机来看4次有一次返回错误
-			throw new RuntimeException("故意抛出业务异常");
+			throw new RuntimeException(getMsg()+"故意抛出业务异常");
 		}
-		return "hello ,im provider:"+ context.getEnvironment().getProperty("local.server.port") +"\n";
+		return getMsg() +"\n";
 	}
 	
 }
