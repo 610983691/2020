@@ -33,6 +33,12 @@ public final class NacosConfigUtil {
 
 	public static final String GROUP_ID = "SENTINEL_GROUP";
 
+	
+	/***
+	 * 网关流控规则
+	 */
+	public static final String GATEWAY_FLOW_RULE_DATA_ID_POSTFIX = "-gateway-flow-rules.json";
+	
 	/***
 	 * 流控规则
 	 */

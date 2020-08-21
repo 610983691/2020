@@ -15,29 +15,29 @@ import org.springframework.web.reactive.result.view.ViewResolver;
 import com.alibaba.csp.sentinel.adapter.gateway.sc.SentinelGatewayFilter;
 import com.alibaba.csp.sentinel.adapter.gateway.sc.exception.SentinelGatewayBlockExceptionHandler;
 
-//@Configuration
+@Configuration
 public class SentinelGatewayConfiguration {
 
 
-//	    private final List<ViewResolver> viewResolvers;
-//	    private final ServerCodecConfigurer serverCodecConfigurer;
-//
-//	    public SentinelGatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
-//	                                ServerCodecConfigurer serverCodecConfigurer) {
-//	        this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
-//	        this.serverCodecConfigurer = serverCodecConfigurer;
-//	    }
-//
-//	    @Bean
-//	    @Order(Ordered.HIGHEST_PRECEDENCE)
-//	    public SentinelGatewayBlockExceptionHandler sentinelGatewayBlockExceptionHandler() {
-//	        // Register the block exception handler for Spring Cloud Gateway.
-//	        return new SentinelGatewayBlockExceptionHandler(viewResolvers, serverCodecConfigurer);
-//	    }
-//
-//	    @Bean
-//	    @Order(Ordered.HIGHEST_PRECEDENCE)
-//	    public GlobalFilter sentinelGatewayFilter() {
-//	        return new SentinelGatewayFilter();
-//	    }
+	    private final List<ViewResolver> viewResolvers;
+	    private final ServerCodecConfigurer serverCodecConfigurer;
+
+	    public SentinelGatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
+	                                ServerCodecConfigurer serverCodecConfigurer) {
+	        this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
+	        this.serverCodecConfigurer = serverCodecConfigurer;
+	    }
+
+	    @Bean
+	    @Order(Ordered.HIGHEST_PRECEDENCE)
+	    public SentinelGatewayBlockExceptionHandler sentinelGatewayBlockExceptionHandler() {
+	        // Register the block exception handler for Spring Cloud Gateway.
+	        return new SentinelGatewayBlockExceptionHandler(viewResolvers, serverCodecConfigurer);
+	    }
+
+	    @Bean
+	    @Order(Ordered.HIGHEST_PRECEDENCE)
+	    public GlobalFilter sentinelGatewayFilter() {
+	        return new SentinelGatewayFilter();
+	    }
 }
