@@ -187,3 +187,110 @@
 
 5.对feignclient的限流，就应当在该链路上下发流控规则。
 
+
+###feign使用
+
+#####1.允许sentinel feign ,开启如下配置：
+
+	feign.sentinel.enabled=true
+
+#####2.producer端添加服务提供接口
+	
+	@RequestMapping("/feign")
+	public String feign() {
+		return getMsg() +"/feign";
+	}
+	
+	@RequestMapping("/feignerr")
+	public String feignerr() {
+		if(System.currentTimeMillis()%4 == 0) {//随机来看4次有一次返回错误
+			throw new RuntimeException(getMsg()+",/feignerr 故意抛出异常");
+		}
+		return getMsg() +"/feignerr";
+	}
+	
+#####3.consumer端添加feign接口
+![feign](doc_pic/sentinel_feign_2.png  "feign")
+
+
+#####4.consumer端的fallback设置
+
+![feign](doc_pic/sentinel_feign_3.png  "feign")
+
+#####5.由于feign注解没有区分fallback和blockhand的异常，因此，当producer限流时，如果返回异常，consumer端处理时应该自己去区分block限流，或者是服务异常
+
+#####6.访问feign接口：
+查看访问结果，通过feign调用到了远端接口。并且触点链路中有新的远程接口产生。
+
+![feign](doc_pic/sentinel_feign_4.png  "feign")
+
+![feign](doc_pic/sentinel_feign_5.png  "feign")
+
+#####7.访问feignerr接口：
+![feign](doc_pic/sentinel_feign_6.png  "feign")
+
+可以发现，通过feign调用可以不再自己定义sentinelresource接口。这样做会简化编码，同时也更合理，代码在哪里远程调用就在哪里进行fallback.
+
+
+##最佳实践
+
+#####1.思考，限流一般情况下，应当都是在服务提供者处提供限流。
+
+即：服务提供方应当明确自己服务的负载是多少，无论是集群也好，单机也好。服务提供者明确自己的最大QPS限流（或者其他规则）。
+
+#####2.作为服务提供者，如果有限流发生时，应当提供明确的消息，表明服务提供方服务能力已达上限。我觉得应当是下面类似的消息：
+
+	{code:-1,msg:"当前访问人数过多，请稍后再试。"，data:""}
+
+#####3.作为服务消费者，熔断策略应当在消费者处配置：
+服务消费者也应当提供限流策略，但是这个限流策略应当是限制消费者的整个并发访问量的，和服务提供方的接口限流规则无关。（正常情况下消费者方的流量不可能全部打到服务提供者的接口上）
+
+由于在消费者处访问服务提供者接口时，服务方可能会返回异常（消费者失联，网络原因，消费者服务整个挂掉），错误（限流，业务错误消息）等两类情况。因为feign接口的异常转换，所以在fallback处和正常代码处都应该合理的处理。
+
+
+##测试:
+
+1.给服务提供者feign接口设置限流规则，QPS=2.
+
+![feign](doc_pic/sentinel_feign_7.png  "feign")
+
+2.服务提供者接口改造：
+
+2.1添加限流异常的拦截处理
+
+	
+	/**
+	 * 方式一、注入自己实现的限流异常处理，自己的处理就是不处理抛出异常，然后交给外层的controller异常处理器统一进行处理
+	 * 方拾二、直接这里拦截返回页面429status,+msg.
+	 * 
+	 * 这里先采用方式2.方式1也测试过，需要搭配controlleradvice做异常拦截，测试也OK。
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		SentinelWebMvcConfig config = app.getBean(SentinelWebMvcConfig.class);
+		config.setBlockExceptionHandler((request, response, e) -> {
+			// Return 429 (Too Many Requests) by default.
+	        StringBuffer url = request.getRequestURL();
+	        if ("GET".equals(request.getMethod()) && StringUtil.isNotBlank(request.getQueryString())) {
+	            url.append("?").append(request.getQueryString());
+	        }
+	        log.warn("接口被限流：{}",url);
+	        response.setStatus( HttpStatus.TOO_MANY_REQUESTS.value());
+	        PrintWriter out = response.getWriter();
+	        out.print(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());//限流提示
+	        out.flush();
+	        out.close();
+	        });
+	}
+3.直接测试producer接口的限流异常返回：
+
+![feign](doc_pic/sentinel_feign_8.png  "feign")
+
+![feign](doc_pic/sentinel_feign_9.png  "feign")
+
+
+4.消费者端的改造：
+
+
+
+
