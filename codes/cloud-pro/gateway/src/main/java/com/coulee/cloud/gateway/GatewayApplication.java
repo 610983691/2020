@@ -40,8 +40,12 @@ public class GatewayApplication {
 	
 	/**
 	 * 如果不启用nacosRule默认就是轮询实现。
+	 * 启用原型模式，否则网关会路由错误到producer上。
+	 * 解决方法是参考：
+	 * <a href="https://github.com/alibaba/spring-cloud-alibaba/issues/1184">issue</a>
 	 */
 		@Bean
+		@Scope("prototype")
         public IRule loadBalanceRule(){
           return new NacosRule();
         }

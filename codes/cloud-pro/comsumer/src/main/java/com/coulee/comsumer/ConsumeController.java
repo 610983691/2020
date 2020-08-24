@@ -38,9 +38,9 @@ public class ConsumeController {
 	 * 
 	 * @return
 	 */
-	@RequestMapping("/feignerr")
+	@RequestMapping("/timeout")
 	public String feignerr()  {
-		return getMsg()+"->"+producer.feignerr();
+		return getMsg()+"->"+producer.timeout();
 	}
 	
 	

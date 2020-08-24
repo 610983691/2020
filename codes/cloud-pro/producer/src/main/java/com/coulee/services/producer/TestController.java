@@ -1,5 +1,7 @@
 package com.coulee.services.producer;
 
+import java.sql.Time;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -48,11 +50,12 @@ public class TestController {
 		return getMsg() +"/feign";
 	}
 	
-	@RequestMapping("/feignerr")
-	public String feignerr() {
-		if(System.currentTimeMillis()%4 == 0) {//随机来看4次有一次返回错误
-			throw new RuntimeException(getMsg()+",/feignerr 故意抛出异常");
+	@RequestMapping("/timeout")
+	public String timeout() {
+		try {
+			Thread.sleep(3300);//等3.3秒
+		} catch (Exception e) {
 		}
-		return getMsg() +"/feignerr";
+		return getMsg() +"/timeout";
 	}
 }

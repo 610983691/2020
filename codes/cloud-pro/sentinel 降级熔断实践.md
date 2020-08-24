@@ -249,6 +249,7 @@
 
 
 ##测试:
+####限流
 
 1.给服务提供者feign接口设置限流规则，QPS=2.
 
@@ -288,9 +289,327 @@
 
 ![feign](doc_pic/sentinel_feign_9.png  "feign")
 
+####熔断
+producer未改造random接口时，访问random接口时，偶尔会出现故意抛出的错误。但即使有错误，服务还是正常可用的。需要测试一种熔断机制，当返回消息抛出异常满足规则时，让服务后续不可用。
 
-4.消费者端的改造：
+改造前，交替的随机出现：
+![randome测试](doc_pic/sentinel_flow_24.PNG  "randome测试")
+![randome测试](doc_pic/sentinel_flow_25.PNG  "randome测试")
+
+
+1.producer添加降级规则（15秒内抛出2次异常，那么进行熔断）：
+![randome测试](doc_pic/sentinel_flow_26.PNG  "randome测试")
+
+2.刷新页面测试：
+![randome测试](doc_pic/sentinel_flow_27.PNG  "randome测试")
+
+出现限流提示，这是因为自定义异常处理没有针对degradeexception做处理造成的，改造代码：
+	
+		if(e instanceof DegradeException) {
+			// Return 429 (Too Many Requests) by default.
+	        StringBuffer url = request.getRequestURL();
+	        if ("GET".equals(request.getMethod()) && StringUtil.isNotBlank(request.getQueryString())) {
+	            url.append("?").append(request.getQueryString());
+	        }
+	        log.warn("接口被熔断：{},e{}",url,e.getRule());
+	        response.setStatus( HttpStatus.SERVICE_UNAVAILABLE.value());
+	        PrintWriter out = response.getWriter();
+	        out.print(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase());//降级提示
+	        out.flush();
+	        out.close();
+		}else {
+			// Return 429 (Too Many Requests) by default.
+	        StringBuffer url = request.getRequestURL();
+	        if ("GET".equals(request.getMethod()) && StringUtil.isNotBlank(request.getQueryString())) {
+	            url.append("?").append(request.getQueryString());
+	        }
+	        log.warn("接口被限流：{}",url);
+	        response.setStatus( HttpStatus.TOO_MANY_REQUESTS.value());
+	        PrintWriter out = response.getWriter();
+	        out.print(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());//限流提示
+	        out.flush();
+	        out.close();
+		}
+
+
+再次刷新页面，当满足降级规则后，界面提示：
+
+![randome测试](doc_pic/sentinel_flow_28.PNG  "randome测试")
+
+###消费者调用生产者，生产者接口被限流后的处理
+当producer被限流后，consumer端feign返回限流消息，消费者端的处理逻辑：
+
+当前代码：
+
+	@FeignClient(value="producer",fallback=ProducerService2Fallback.class,configuration = FeignConfiguration2.class)
+	public interface ProducerService {
+	
+		/***
+		 * 访问producer random接口
+		 * @return
+		 */
+		@RequestMapping("/random")
+		public String random() ;
+		
+		
+		/***
+		 * 访问producer echo接口
+		 * @return
+		 */
+		@RequestMapping("/echo")
+		public String echo() ;
+		
+		/***
+		 * 访问producer feign接口
+		 * @return
+		 */
+		@RequestMapping("/feign")
+		public String feign() ;
+		
+		/***
+		 * 访问producer feignerr接口
+		 * @return
+		 */
+		@RequestMapping(value="/feignerr",method = RequestMethod.GET)
+		public String feignerr() ;
+	}
+	class FeignConfiguration2 {
+	    @Bean
+	    public ProducerService2Fallback producerService2Fallback() {
+	        return new ProducerService2Fallback();
+	    }
+	}
+	class ProducerService2Fallback implements ProducerService {
+	
+		@Override
+		public String feign() {
+			// TODO Auto-generated method stub
+			return "feign custom fallback";
+		}
+	
+		@Override
+		public String feignerr() {
+			// TODO Auto-generated method stub
+			return "feignerr custom fallback";
+		}
+	
+		@Override
+		public String random() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	
+		@Override
+		public String echo() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+
+![consumer](doc_pic/sentinel_feign_10.PNG  "consumer")
+
+目前是直接返回fallBack里边的消息，这里的fallback并未区分异常。
+
+
+####1.修改consumer的feign接口fallback函数
+
+参考官方文档：
+[https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba-examples/sentinel-example/sentinel-feign-example](https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba-examples/sentinel-example/sentinel-feign-example "sentinel_feign配置")
+
+	
+修改代码：
+
+	
+	@FeignClient(value="producer",fallbackFactory = ProducerServiceFallbackFactory.class)
+	public interface ProducerService {
+	
+		/***
+		 * 访问producer random接口
+		 * @return
+		 */
+		@RequestMapping("/random")
+		public String random() ;
+		
+		
+		/***
+		 * 访问producer echo接口
+		 * @return
+		 */
+		@RequestMapping("/echo")
+		public String echo() ;
+		
+		/***
+		 * 访问producer feign接口
+		 * @return
+		 */
+		@RequestMapping("/feign")
+		public String feign() ;
+		
+		/***
+		 * 访问producer feignerr接口
+		 * @return
+		 */
+		@RequestMapping(value="/feignerr",method = RequestMethod.GET)
+		public String feignerr() ;
+	}
+	@Component
+	@Slf4j
+	 class ProducerServiceFallbackFactory implements FallbackFactory<ProducerServiceFallback> {
+	    @Override
+	    public ProducerServiceFallback create(Throwable throwable) {
+	    	log.warn("远端异常",throwable);
+	        return new ProducerServiceFallback(throwable);
+	    }
+	}
+	@Slf4j
+	 class ProducerServiceFallback implements ProducerService {
+	    private Throwable throwable;
+	
+	    ProducerServiceFallback(Throwable throwable) {
+	        this.throwable = throwable;
+	    }
+	
+	    
+		@Override
+		public String random() {
+			log.warn("random处理",throwable);
+			return "远端random异常";
+		}
+	
+		@Override
+		public String echo() {
+			log.warn("echo处理",throwable);
+			return "远端echo异常";
+		}
+	
+		@Override
+		public String feign() {
+			log.warn("feign处理",throwable);
+			return "远端feign异常";
+		}
+	
+		@Override
+		public String feignerr() {
+			// TODO Auto-generated method stub
+			return "远端feignerr异常";
+		}
+	
+	}
+
+
+![consumer](doc_pic/sentinel_feign_11.PNG  "consumer")
+
+这里的处理仍然未区分远端的异常是由于什么原因导致的。 
+
+2.再修改代码
+
+	@Override
+	public String random() {
+		FeignException fe =(FeignException)throwable;
+		if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+			return "远端random限流，请稍后再试！";
+		}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+			return "远端random熔断，服务不可用，请稍后再试！";
+		}
+		log.warn("random处理",throwable);
+		return "远端random业务异常";
+	}
+
+	@Override
+	public String feign() {
+		FeignException fe =(FeignException)throwable;
+		if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+			return "远端feign限流，请稍后再试！";
+		}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+			return "远端feign熔断，服务不可用，请稍后再试！";
+		}
+		log.warn("feign处理",throwable);
+		return "远端feign业务异常";
+	}
+
+分别刷新feign接口和random接口：
+
+![consumer](doc_pic/sentinel_feign_12.PNG  "consumer")
+
+![consumer](doc_pic/sentinel_feign_13.PNG  "consumer")
 
 
 
+####合理的处理远端的业务异常、限流异常、熔断降级异常
+1.远端业务异常
+> 远端业务处理失败，意味着consumer端可能需要做事务的回退，合理的业务信息提示等。
+> 远端业务处理失败，但一般远端会拦截处理异常信息，并且返回json.也可能拦截异常，但返回特定的响应码。
+> 因此需要consumer端正确的判断这些状态码。
 
+默认情况下，feign认为httpstatus:2XX状态码就是正确的，其他状态码是异常情况，因此我们上述的代码能够在fallback里边拦截到异常。
+
+
+2.远端限流异常
+
+定义抛出429
+
+3.远端熔断降级
+
+定义抛出503
+
+
+
+###consumer端对远端接口异常进行熔断
+
+考虑这样一个场景：
+>consumer正常，当远端业务没有配置限流或者降级等。当consumer访问producer时，由于producer没有流控、降级规则或者是还未触发规则，producer长时间不返回，导致timeout或者是一直返回异常消息。 特别是长时间timeout返回这种情况，consumer端应该对feign的接口有容错降级机制，避免因为producer的业务异常，timeout过多，导致consumer端的线程堆积，最后所有的线程都堆积来处理这些由于producer的timeout导致consumer的其他服务超时、无法请求，最后导致在外部看来consumer整个“挂掉”。----雪崩效应
+
+所以需要在consumer端提供降级规则
+
+######consumer对producer的异常进行降级
+
+#####降级规则（根据异常数降级）：
+这里定义一个random接口的降级规则，如果15秒内有2个异常抛出，就降级。同时，删除producer的random接口降级规则。
+
+
+![consumer](doc_pic/sentinel_feign_14.PNG  "consumer")	
+
+
+刷新页面测试：
+![consumer](doc_pic/sentinel_feign_15.PNG  "consumer")	
+
+发现当远端出现2次业务异常的时候，接口直接被熔断。
+
+修改代码：
+
+	@Override
+	public String random() {
+		if(throwable instanceof FeignException) {
+			FeignException fe =(FeignException)throwable;
+			if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+				return "远端random限流，请稍后再试！";
+			}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+				return "远端random熔断，服务不可用，请稍后再试！";
+			}
+			log.warn("random处理",throwable);
+		}else if(throwable instanceof DegradeException) {//熔断异常特殊处理
+			return "consumer端主动熔断远端random接口，服务不可用，请稍后再试！";
+		}else if(throwable instanceof BlockException) {
+			return "consumer主动限流远端random服务，请稍后再试！";
+		}
+		
+		return "远端random业务异常";
+	}
+
+刷新页面，提示是由于consumer端主动发起的熔断。
+
+![consumer](doc_pic/sentinel_feign_16.PNG  "consumer")	
+
+
+
+#####熔断规则（根据RT熔断）：
+这里的配置意思是：30秒内，有3个请求超过最大的响应时间readTimeout（RT）就触发熔断降级。--好像并不对？
+
+
+![consumer](doc_pic/sentinel_feign_17.PNG  "consumer")	
+![consumer](doc_pic/sentinel_feign_19.PNG  "consumer")
+![consumer](doc_pic/sentinel_feign_18.PNG  "consumer")	
+
+
+测试刷新界面：

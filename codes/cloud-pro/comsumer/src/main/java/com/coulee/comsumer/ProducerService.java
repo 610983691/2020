@@ -1,14 +1,20 @@
 package com.coulee.comsumer;
 
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
 
-@FeignClient(value="producer",fallback=ProducerService2Fallback.class,configuration = FeignConfiguration2.class)
+import feign.FeignException;
+import feign.hystrix.FallbackFactory;
+import lombok.extern.slf4j.Slf4j;
+
+
+@FeignClient(value="producer",fallbackFactory = ProducerServiceFallbackFactory.class)
 public interface ProducerService {
 
 	/***
@@ -37,39 +43,81 @@ public interface ProducerService {
 	 * 访问producer feignerr接口
 	 * @return
 	 */
-	@RequestMapping(value="/feignerr",method = RequestMethod.GET)
-	public String feignerr() ;
+	@RequestMapping(value="/timeout",method = RequestMethod.GET)
+	public String timeout() ;
 }
-class FeignConfiguration2 {
-    @Bean
-    public ProducerService2Fallback producerService2Fallback() {
-        return new ProducerService2Fallback();
+@Component
+@Slf4j
+ class ProducerServiceFallbackFactory implements FallbackFactory<ProducerServiceFallback> {
+    @Override
+    public ProducerServiceFallback create(Throwable throwable) {
+    	log.warn("远端异常",throwable);
+        return new ProducerServiceFallback(throwable);
     }
 }
-class ProducerService2Fallback implements ProducerService {
+@Slf4j
+ class ProducerServiceFallback implements ProducerService {
+    private Throwable throwable;
 
-	@Override
-	public String feign() {
-		// TODO Auto-generated method stub
-		return "feign custom fallback";
-	}
+    ProducerServiceFallback(Throwable throwable) {
+        this.throwable = throwable;
+    }
 
-	@Override
-	public String feignerr() {
-		// TODO Auto-generated method stub
-		return "feignerr custom fallback";
-	}
-
+    
 	@Override
 	public String random() {
-		// TODO Auto-generated method stub
-		return null;
+		if(throwable instanceof FeignException) {
+			FeignException fe =(FeignException)throwable;
+			if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+				return "远端random限流，请稍后再试！";
+			}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+				return "远端random熔断，服务不可用，请稍后再试！";
+			}
+			log.warn("random处理",throwable);
+		}else if(throwable instanceof DegradeException) {//熔断异常特殊处理
+			return "consumer端主动熔断远端random接口，服务不可用，请稍后再试！";
+		}else if(throwable instanceof BlockException) {
+			return "consumer主动限流远端random服务，请稍后再试！";
+		}
+		
+		return "远端random业务异常";
 	}
 
 	@Override
 	public String echo() {
-		// TODO Auto-generated method stub
-		return null;
+		log.warn("echo处理",throwable);
+		return "远端echo异常";
 	}
-	
+
+	@Override
+	public String feign() {
+		FeignException fe =(FeignException)throwable;
+		if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+			return "远端feign限流，请稍后再试！";
+		}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+			return "远端feign熔断，服务不可用，请稍后再试！";
+		}
+		log.warn("feign处理",throwable);
+		return "远端feign业务异常";
+	}
+
+	@Override
+	public String timeout() {
+		if(throwable instanceof FeignException) {
+			FeignException fe =(FeignException)throwable;
+			if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
+				return "远端timeout限流，请稍后再试！";
+			}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
+				return "远端timeout熔断，服务不可用，请稍后再试！";
+			}
+			log.warn("timeout处理",throwable);
+		}else if(throwable instanceof DegradeException) {//熔断异常特殊处理
+			return "consumer端主动熔断远端timeout接口，服务不可用，请稍后再试！";
+		}else if(throwable instanceof BlockException) {
+			return "consumer主动限流远端timeout服务，请稍后再试！";
+		}
+		
+		return "远端timeout业务异常";
+	}
+
 }
