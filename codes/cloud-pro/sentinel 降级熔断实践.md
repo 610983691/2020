@@ -604,12 +604,17 @@ producer未改造random接口时，访问random接口时，偶尔会出现故意
 
 
 #####熔断规则（根据RT熔断）：
-这里的配置意思是：30秒内，有3个请求超过最大的响应时间readTimeout（RT）就触发熔断降级。--好像并不对？
+这里的配置意思是：30秒内，有连续5个请求超过最大的响应时间readTimeout（RT=3000ms）就触发熔断降级.
+这30秒的时间窗内，从第6个请求开始进行熔断。直到下一个时间窗又开始放行。
 
 
-![consumer](doc_pic/sentinel_feign_17.PNG  "consumer")	
-![consumer](doc_pic/sentinel_feign_19.PNG  "consumer")
-![consumer](doc_pic/sentinel_feign_18.PNG  "consumer")	
+![consumer](doc_pic/sentinel_feign_17.png  "consumer")	
 
-
+![consumer](doc_pic/sentinel_feign_18.png  "consumer")	
+	
+![consumer](doc_pic/sentinel_feign_19.png  "consumer")	
+	
 测试刷新界面：
+
+![consumer](doc_pic/sentinel_feign_20.png  "consumer")	
+	

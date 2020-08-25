@@ -103,6 +103,7 @@ public interface ProducerService {
 
 	@Override
 	public String timeout() {
+		log.warn("timeout处理",throwable);
 		if(throwable instanceof FeignException) {
 			FeignException fe =(FeignException)throwable;
 			if(fe.status()==HttpStatus.TOO_MANY_REQUESTS.value()) {
@@ -110,7 +111,7 @@ public interface ProducerService {
 			}else if(fe.status()==HttpStatus.SERVICE_UNAVAILABLE.value()) {
 				return "远端timeout熔断，服务不可用，请稍后再试！";
 			}
-			log.warn("timeout处理",throwable);
+		
 		}else if(throwable instanceof DegradeException) {//熔断异常特殊处理
 			return "consumer端主动熔断远端timeout接口，服务不可用，请稍后再试！";
 		}else if(throwable instanceof BlockException) {
