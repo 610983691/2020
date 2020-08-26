@@ -6,7 +6,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
-@Configuration
+//@Configuration
 public class RedisConfigMasterSlave {
 
 	@Bean
