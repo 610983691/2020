@@ -22,6 +22,11 @@
 	</properties>
 
 	<dependencies>
+		<!-- 启动为web项目 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 		<!-- 使用feign做远程调用 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -33,9 +38,10 @@
 			<artifactId>sentinel-datasource-nacos</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
 		</dependency>
+		<!-- nacos引入 -->
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
@@ -43,10 +49,6 @@
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.alibaba.cloud</groupId>
-			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
 		</dependency>
 
 		<!-- redis连接设置 -->
@@ -65,7 +67,22 @@
 		    <groupId>com.google.guava</groupId>
 		    <artifactId>guava</artifactId>
 		</dependency>
-				
+		<!--  mybatis plus-->
+		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+		<dependency>
+		    <groupId>com.baomidou</groupId>
+		    <artifactId>mybatis-plus-boot-starter</artifactId>
+		    <version>3.4.0</version>
+		</dependency>
+		
+		<!-- 引入jdbc,自动引入hikariCp连接池 -->
+		<dependency>
+	      <groupId>org.springframework.boot</groupId>
+	      <artifactId>spring-boot-starter-data-jdbc</artifactId>
+	    </dependency>
+		
+		
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
