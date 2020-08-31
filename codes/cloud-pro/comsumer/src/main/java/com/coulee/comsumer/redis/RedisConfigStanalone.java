@@ -52,7 +52,7 @@ public class RedisConfigStanalone extends CachingConfigurerSupport{
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
     	  RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
           // 设置缓存管理器管理的缓存的默认过期时间
-          defaultCacheConfig = defaultCacheConfig.entryTtl(Duration.ofSeconds(300))
+          defaultCacheConfig = defaultCacheConfig.entryTtl(Duration.ofSeconds(300))//5分钟
                   // 设置 key为string序列化
                   .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                   // 设置value为json序列化

@@ -69,7 +69,7 @@ public class SentinelNacosDatasourceBean {
 
 	class SentinelNacosDatasource {
 		public void init() {
-			log.info("开始加载nacos配置");
+			log.info("开始加载nacos的sentinel配置");
 			Properties properties = new Properties();
 			properties.put(PropertyKeyConst.SERVER_ADDR, remoteAddress);
 			properties.put(PropertyKeyConst.NAMESPACE, namespace);
