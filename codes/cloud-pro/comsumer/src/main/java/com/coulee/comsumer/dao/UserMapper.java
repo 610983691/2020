@@ -15,8 +15,9 @@ public interface UserMapper extends BaseMapper<UserEntity> {
 
 	/**
 	 * 缓存命名方式： 产品名：：数据库名：表名：字段名：字段值
+	 * unless:除非result==null,否则都会存入缓存中
 	 */
-	@Cacheable(value = "pdt:product_test_consumer:t_user:id", key = "#p0")
+	@Cacheable(value = "pdt:product_test_consumer:t_user:id", key = "#p0",unless="#result == null")
 	UserEntity selectById(Serializable id);
 
 	/**

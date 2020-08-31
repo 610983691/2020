@@ -34,7 +34,7 @@ redis的哨兵机制与使用：
 
 dao层方法的key命名：
 
-product_name:db:table:func:custom
+product_name:db:table:field:custom
 
 
 
@@ -70,9 +70,40 @@ sesseionid:
 
 
 ####redis 基于注解的DAO缓存获取
-1.新增数据时，添加数据到缓存
+参考代码：
+
+	public interface UserMapper extends BaseMapper<UserEntity> {
+
+		/**
+		 * 缓存命名方式： 产品名：：数据库名：表名：字段名：字段值
+		 */
+		@Cacheable(value = "pdt:product_test_consumer:t_user:id", key = "#p0")
+		UserEntity selectById(Serializable id);
+	
+		/**
+		 * 缓存命名方式： 产品名：：数据库名：表名：字段名：字段值 新增的时候不更新缓存，只有当系统真正查询的时候才添加到缓存。
+		 */
+		int insert(UserEntity user);
+	
+		/**
+		 * 缓存命名方式： 产品名：：数据库名：表名：字段名：字段值 更新的时候，会只剔除满足这个key:id的缓存记录
+		 */
+		@CacheEvict(value = "pdt:product_test_consumer:t_user:id", key = "#p0.id")
+		int updateById(@Param(Constants.ENTITY) UserEntity entity);
+	
+		/**
+		 * 缓存命名方式： 产品名：：数据库名：表名：字段名：字段值
+		 * 更新的时候，剔除pdt:product_test_consumer:t_user:id下面所有的缓存
+		 */
+		@CacheEvict(value = "pdt:product_test_consumer:t_user:id", allEntries = true)
+		int deleteBatchIds(@Param(Constants.COLLECTION) Collection<? extends Serializable> idList);
+	}
+
+默认情况下，有该缓存就OK。更细粒度的缓存方案应当是专门的中间件来处理，不在这里单机版的代码中处理.
 
 
 
+####update方法异常会剔除cache缓存吗？
+肯定不会。
 
 ####集群的redis

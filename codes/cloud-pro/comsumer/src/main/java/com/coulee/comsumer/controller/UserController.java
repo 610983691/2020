@@ -42,7 +42,8 @@ public class UserController {
 	public UserEntity update(@RequestBody UserEntity us){
 		UserEntity oldus = userMapper.selectById(us.getId());
 		us.setUsername(oldus.getUsername()+"modify");
-		userMapper.updateById(us);
+		us.setUid("329ijfc9u23joi2jr97uf92jj29u2u34028402840j0fi203890322j30329023923");//数据库异常
+		userMapper.updateById(us);//抛异常
 		return us;
 	}
 	
