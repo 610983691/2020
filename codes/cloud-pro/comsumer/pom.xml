@@ -61,6 +61,15 @@
 		    <groupId>io.lettuce</groupId>
 		    <artifactId>lettuce-core</artifactId>
 		  </dependency>
+		<!-- redis 分布式锁实现 -->
+		<dependency>
+	         <groupId>org.redisson</groupId>
+	         <!-- for Spring Data Redis v.2.2.x -->
+	         <!-- https://github.com/redisson/redisson/tree/master/redisson-spring-data -->
+	         <artifactId>redisson-spring-data-22</artifactId>
+	         <version>3.13.3</version>
+	     </dependency>
+
 
 		<!-- guava -->
 		<dependency>

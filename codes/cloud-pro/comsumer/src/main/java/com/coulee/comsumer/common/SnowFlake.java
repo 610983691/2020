@@ -145,5 +145,9 @@ public class SnowFlake {
 		return mill;
 	}
 
+	public static void main(String[] args) {
+		SnowFlake sn =new SnowFlake(0L);
+		System.out.println(sn.nextId());
+	}
 
 }

@@ -41,7 +41,11 @@ public class RedisConfigStanalone extends CachingConfigurerSupport{
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(redisConnectionFactory);
-		template.setKeySerializer(new StringRedisSerializer());//单独设置keySerializer
+		
+		template.setDefaultSerializer(new GenericFastJsonRedisSerializer());//默认使用fastjson序列化
+		template.setKeySerializer(new StringRedisSerializer());//单独设置keySerializer为string
+		template.setHashKeySerializer(new StringRedisSerializer());//单独设置keySerializer
+		template.setHashValueSerializer(new StringRedisSerializer());//单独设置keySerializer
 		template.setValueSerializer(new GenericFastJsonRedisSerializer());//单独设置valueSerializer
 		return template;
 	}
@@ -56,9 +60,9 @@ public class RedisConfigStanalone extends CachingConfigurerSupport{
                   // 设置 key为string序列化
                   .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                   // 设置value为json序列化
-                  .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericFastJsonRedisSerializer()))
-                  // 不缓存空值
-                  .disableCachingNullValues();
+                  .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericFastJsonRedisSerializer()));
+                  // 缓存空值
+//                  .disableCachingNullValues();
 
           RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory)
                   .cacheDefaults(defaultCacheConfig)
