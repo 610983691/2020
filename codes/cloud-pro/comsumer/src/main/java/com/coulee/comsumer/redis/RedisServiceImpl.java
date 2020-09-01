@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisServiceImpl implements RedisService {
 
 	@Autowired
-	RedissonClient red;
+	RedissonClient red;//使用redission隔离了底层实现
 	
 	@Autowired
 	RedisTemplate<String, Object>  redis;
@@ -33,7 +33,7 @@ public class RedisServiceImpl implements RedisService {
 		RLock rlock =red.getLock("mylock");
 		boolean islock =false;
 		try {
-			islock = rlock.tryLock(1000, 10000, TimeUnit.MILLISECONDS);
+			islock = rlock.tryLock(1000, 10000, TimeUnit.MILLISECONDS);//尝试获取锁
 			
 			if(islock) {//如果获取到锁，可重入的
 			
@@ -41,7 +41,6 @@ public class RedisServiceImpl implements RedisService {
 				for (Entry<Object, Object> item : map.entrySet()) {
 					log.info("key ={},val={}",item.getKey(),item.getValue());
 				}
-				Thread.sleep(3000);
 			}
 		} catch (Exception e) {
 			log.info("获取分布式锁失败：",e);

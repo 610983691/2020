@@ -45,8 +45,8 @@ public class RedisConfigStanalone extends CachingConfigurerSupport{
 		template.setDefaultSerializer(new GenericFastJsonRedisSerializer());//默认使用fastjson序列化
 		template.setKeySerializer(new StringRedisSerializer());//单独设置keySerializer为string
 		template.setHashKeySerializer(new StringRedisSerializer());//单独设置keySerializer
-		template.setHashValueSerializer(new StringRedisSerializer());//单独设置keySerializer
-		template.setValueSerializer(new GenericFastJsonRedisSerializer());//单独设置valueSerializer
+//		template.setHashValueSerializer(new StringRedisSerializer());//单独设置keySerializer
+//		template.setValueSerializer(new GenericFastJsonRedisSerializer());//单独设置valueSerializer
 		return template;
 	}
 

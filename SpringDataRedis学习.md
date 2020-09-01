@@ -205,6 +205,63 @@ Redis会删除过期键以释放空间，过期键的删除策略有两种：
 使用：
 采用开源的redisson来使用redis的分布式锁。
 
+配置：
+由于使用了hash，需要配置hashkey的序列化方式为string.（key和hashkey的序列化不是继承关系，因此需要额外的指定）
+
+	
+	@Bean
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactory);
+		
+		template.setDefaultSerializer(new GenericFastJsonRedisSerializer());//默认使用fastjson序列化
+		template.setKeySerializer(new StringRedisSerializer());//单独设置keySerializer为string
+		template.setHashKeySerializer(new StringRedisSerializer());//单独设置keySerializer
+	//		template.setHashValueSerializer(new StringRedisSerializer());//单独设置keySerializer
+	//		template.setValueSerializer(new GenericFastJsonRedisSerializer());//单独设置valueSerializer
+		return template;
+	}
+
+分布式锁代码：
+
+	@Autowired
+	RedissonClient red;
+	
+	@Autowired
+	RedisTemplate<String, Object>  redis;
+	
+	@Override
+	@CachePut(value="user",key="'product_test:consumer:user:'+#p0.uid")
+	public UserInfo add(UserInfo tobeAdd) {
+		log.info("tobeadd {}:",tobeAdd);
+		RLock rlock =red.getLock("mylock");
+		boolean islock =false;
+		try {
+			islock = rlock.tryLock(1000, 10000, TimeUnit.MILLISECONDS);
+			
+			if(islock) {//如果获取到锁，可重入的
+			
+ 				Map<Object, Object> map=redis.opsForHash().entries("mylock");
+				for (Entry<Object, Object> item : map.entrySet()) {
+					log.info("key ={},val={}",item.getKey(),item.getValue());
+				}
+				Thread.sleep(3000);
+			}
+		} catch (Exception e) {
+			log.info("获取分布式锁失败：",e);
+		}finally {
+			rlock.unlock();//释放锁
+		}
+		return tobeAdd;
+	}
+
+
+通过RedisTemplate 获取到的key日志输出：
+
+INFO 13452 --- [o-auto-1-exec-1] c.c.comsumer.redis.RedisServiceImpl      : key =2bacedd8-0f82-45b5-836b-1d557532ccd6:96,val=1
+
+
+
 
 
 ####集群的redis
