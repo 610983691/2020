@@ -4,22 +4,30 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.coulee.comsumer.common.SnowFlake;
+import com.coulee.comsumer.dao.OrgMapper;
 import com.coulee.comsumer.dao.UserMapper;
+import com.coulee.comsumer.entity.OrgEntity;
 import com.coulee.comsumer.entity.UserEntity;
 import com.coulee.comsumer.service.UserService;
 import com.coulee.comsumer.vo.UserListVO;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 public class UserController {
 
 	@Autowired
 	UserMapper userMapper;
+	@Autowired
+	OrgMapper orgMapper;
 	
 
 	@Autowired
@@ -38,12 +46,15 @@ public class UserController {
 		return us;
 	}
 	
+	@Transactional(rollbackFor = Exception.class)//这里测试使用默认配置即可
 	@RequestMapping("/user/update")
 	public UserEntity update(@RequestBody UserEntity us){
 		UserEntity oldus = userMapper.selectById(us.getId());
 		us.setUsername(oldus.getUsername()+"modify");
-		us.setUid("329ijfc9u23joi2jr97uf92jj29u2u34028402840j0fi203890322j30329023923");//数据库异常
 		userMapper.updateById(us);//抛异常
+		UserEntity newusr = userMapper.selectById(us.getId());
+		log.info("new user info :{}",newusr);//打印新查询的user
+		int a=1/0;//抛异常,
 		return us;
 	}
 	
@@ -52,4 +63,5 @@ public class UserController {
 		UserEntity us = userMapper.selectById(id);
 		return us;
 	}
+	
 }
