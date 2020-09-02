@@ -2,7 +2,10 @@ package com.tj.springdemo;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.beans.propertyeditors.ByteArrayPropertyEditor;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.web.context.WebApplicationContext;
 
 public class TestXmlBeanFactory {
     public static void main(String[] args) {
@@ -14,5 +17,8 @@ public class TestXmlBeanFactory {
         System.out.println(iocContainer.getBean("beanb"));
         //beanc 的构造方法打印输出会再beanb获得的时候输出
         System.out.println(iocContainer.getBean("beanc"));
+        TestXmlBeanFactory.class.getDeclaredMethods()
     }
+
+
 }
