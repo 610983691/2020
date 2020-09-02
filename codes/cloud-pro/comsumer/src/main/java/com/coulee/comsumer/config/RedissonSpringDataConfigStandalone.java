@@ -28,6 +28,7 @@ public class RedissonSpringDataConfigStandalone {
 //	   Map<String,Object> pro = NacosPropertySourceRepository.getNacosPropertySource("product_test_shared_db.properties","REFRESH_GROUP_PRODUCT_SHARED").getSource();
        Config config = new Config();
        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+       config.setNettyThreads(0);//不需要默认的32个线程
        return Redisson.create(config);
    }
 

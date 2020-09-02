@@ -101,4 +101,10 @@ select方法：
 
 ####分布式事务
 
+参考：
+[https://xiaomi-info.github.io/2020/01/02/distributed-transaction/](https://xiaomi-info.github.io/2020/01/02/distributed-transaction/ "分布式事务参考")
 
+开源方案：
+tx-lcn ，保证最终一致性的方案。
+编码简单。
+仅依赖redis,没有额外的引入其他依赖。
