@@ -34,3 +34,7 @@
 	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 ####二、下载seata服务
+
+
+####三、创建order/storage服务
+
