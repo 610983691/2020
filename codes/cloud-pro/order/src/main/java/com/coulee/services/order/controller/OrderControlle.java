@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.coulee.cloud.base.Result;
-import com.coulee.cloud.common.SnowFlake;
+import com.coulee.cloud.common.base.ResponseResult;
+import com.coulee.cloud.common.base.SnowFlake;
 import com.coulee.services.order.dao.OrderMapper;
 import com.coulee.services.order.entity.OrderEntity;
 import com.coulee.services.order.vo.OrderCreateVO;
@@ -38,13 +38,13 @@ public class OrderControlle {
 
     @RequestMapping("/create/{storageId}/{count}")
     @GlobalTransactional
-    public Result<OrderCreateVO> create(@PathVariable("storageId") Long storageId,
+    public ResponseResult<OrderCreateVO> create(@PathVariable("storageId") Long storageId,
         @PathVariable("count") Integer count) {
         if (storageId == null) {
-            return Result.ofFail(-1, "订单不能为空");
+            return ResponseResult.ofFail(-1, "订单不能为空");
         }
         if (count == null || count < 1) {
-            return Result.ofFail(-1, "数量不能小于1");
+            return ResponseResult.ofFail(-1, "数量不能小于1");
         }
 
         OrderEntity order = new OrderEntity();
@@ -60,7 +60,7 @@ public class OrderControlle {
         vo.setCreateAt(order.getCancelAt());
         vo.setId(order.getId());
         vo.setTotalPrice(order.getTotalPrice());// 测试就输出这么点儿东西给前端
-        return Result.ofSuccess(vo);
+        return ResponseResult.ofSuccess(vo);
     }
 
     private String getMsg() {

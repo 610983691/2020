@@ -12,7 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @author zitong
  *
  */
-@SpringBootApplication(scanBasePackages = "com.coulee.cloud.config") // 必须扫描common的配置包
+@SpringBootApplication(scanBasePackages = {"com.coulee.cloud.common", "com.coulee.services.order"}) // 必须扫描common的配置包
 @EnableDiscoveryClient
 @EnableFeignClients
 @MapperScan("com.coulee.services.order.dao")
