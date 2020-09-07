@@ -6,7 +6,7 @@ package com.coulee.cloud.common.base;
  * @author zitong
  * @date 2020/09/03
  */
-public class Result<R> {
+public class ResponseResult<R> {
 
     /***
      * 成功与否
@@ -25,24 +25,24 @@ public class Result<R> {
      */
     private R data;
 
-    public static <R> Result<R> ofSuccess(R data) {
-        return new Result<R>().setSuccess(true).setMsg("success").setData(data);
+    public static <R> ResponseResult<R> ofSuccess(R data) {
+        return new ResponseResult<R>().setSuccess(true).setMsg("success").setData(data);
     }
 
-    public static <R> Result<R> ofSuccessMsg(String msg) {
-        return new Result<R>().setSuccess(true).setMsg(msg);
+    public static <R> ResponseResult<R> ofSuccessMsg(String msg) {
+        return new ResponseResult<R>().setSuccess(true).setMsg(msg);
     }
 
-    public static <R> Result<R> ofFail(int code, String msg) {
-        Result<R> result = new Result<>();
+    public static <R> ResponseResult<R> ofFail(int code, String msg) {
+        ResponseResult<R> result = new ResponseResult<>();
         result.setSuccess(false);
         result.setCode(code);
         result.setMsg(msg);
         return result;
     }
 
-    public static <R> Result<R> ofThrowable(int code, Throwable throwable) {
-        Result<R> result = new Result<>();
+    public static <R> ResponseResult<R> ofThrowable(int code, Throwable throwable) {
+        ResponseResult<R> result = new ResponseResult<>();
         result.setSuccess(false);
         result.setCode(code);
         result.setMsg(throwable.getClass().getName() + ", " + throwable.getMessage());
@@ -53,7 +53,7 @@ public class Result<R> {
         return success;
     }
 
-    public Result<R> setSuccess(boolean success) {
+    public ResponseResult<R> setSuccess(boolean success) {
         this.success = success;
         return this;
     }
@@ -62,7 +62,7 @@ public class Result<R> {
         return code;
     }
 
-    public Result<R> setCode(int code) {
+    public ResponseResult<R> setCode(int code) {
         this.code = code;
         return this;
     }
@@ -71,7 +71,7 @@ public class Result<R> {
         return msg;
     }
 
-    public Result<R> setMsg(String msg) {
+    public ResponseResult<R> setMsg(String msg) {
         this.msg = msg;
         return this;
     }
@@ -80,7 +80,7 @@ public class Result<R> {
         return data;
     }
 
-    public Result<R> setData(R data) {
+    public ResponseResult<R> setData(R data) {
         this.data = data;
         return this;
     }
