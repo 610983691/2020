@@ -15,7 +15,7 @@
   ~  limitations under the License.
   -->
 
-<configuration scan="true" scanPeriod="60 seconds" debug="false">
+<configuration scan="true" scanPeriod="60 seconds" debug="true">
     <!-- Context listeners -->
     <contextListener class="io.seata.server.logging.listener.SystemPropertyLoggerContextListener" />
 
@@ -97,7 +97,7 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="ALL"/>
         <appender-ref ref="WARN"/>
         <appender-ref ref="ERROR"/>

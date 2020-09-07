@@ -104,3 +104,7 @@
 配置项：
 
 [https://seata.io/zh-cn/docs/user/configurations.html](https://seata.io/zh-cn/docs/user/configurations.html "配置文档")
+
+视频：
+
+[https://www.bilibili.com/video/BV12Q4y1A7Nt](https://www.bilibili.com/video/BV12Q4y1A7Nt "视频")

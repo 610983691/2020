@@ -15,6 +15,7 @@ import com.coulee.services.order.dao.OrderMapper;
 import com.coulee.services.order.entity.OrderEntity;
 import com.coulee.services.order.vo.OrderCreateVO;
 
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 
 /***
@@ -36,6 +37,7 @@ public class OrderControlle {
     private SnowFlake snowFlakeId;
 
     @RequestMapping("/create/{storageId}/{count}")
+    @GlobalTransactional
     public Result<OrderCreateVO> create(@PathVariable("storageId") Long storageId,
         @PathVariable("count") Integer count) {
         if (storageId == null) {
