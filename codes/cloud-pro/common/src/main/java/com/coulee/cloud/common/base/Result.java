@@ -1,4 +1,4 @@
-package com.coulee.cloud.base;
+package com.coulee.cloud.common.base;
 
 /**
  * json响应结果包装类
