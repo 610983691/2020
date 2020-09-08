@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -28,4 +29,8 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
         converter.setFastJsonConfig(config);
         converters.add(0, converter);
     }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+    	
+	}
 }
