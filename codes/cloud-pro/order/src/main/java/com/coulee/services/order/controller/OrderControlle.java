@@ -57,7 +57,7 @@ public class OrderControlle {
         order.setCreateUserId(1L);
         order.setAmount(count);
         order.setCreateAt(LocalDateTime.now());
-        order.setUnitPrice(new BigDecimal(12.88));
+        order.setUnitPrice(new BigDecimal("12.88"));
         order.setTotalPrice(order.getUnitPrice().multiply(order.getUnitPrice()));
         orderMapper.insert(order);// 这里有db
         log.info("创建订单：{}, {}", getMsg(), order);
