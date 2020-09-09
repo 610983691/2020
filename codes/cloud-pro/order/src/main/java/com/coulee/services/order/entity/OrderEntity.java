@@ -49,7 +49,7 @@ public class OrderEntity {
     /***
      * 商品数量
      */
-    private Integer amount;
+    private Long amount;
 
     /***
      * 订单总价：totalPrice =unitPrice * amount

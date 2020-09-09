@@ -13,6 +13,7 @@ import com.coulee.cloud.common.base.ResponseResult;
 import com.coulee.cloud.common.base.SnowFlake;
 import com.coulee.services.order.dao.OrderMapper;
 import com.coulee.services.order.entity.OrderEntity;
+import com.coulee.services.order.service.feign.StorageService;
 import com.coulee.services.order.vo.OrderCreateVO;
 
 import io.seata.spring.annotation.GlobalTransactional;
@@ -32,6 +33,9 @@ public class OrderControlle {
 
     @Autowired
     private OrderMapper orderMapper;
+    
+    @Autowired
+    private StorageService storageService;
 
     @Autowired
     private SnowFlake snowFlakeId;
@@ -39,7 +43,7 @@ public class OrderControlle {
     @RequestMapping("/create/{storageId}/{count}")
     @GlobalTransactional
     public ResponseResult<OrderCreateVO> create(@PathVariable("storageId") Long storageId,
-        @PathVariable("count") Integer count) {
+        @PathVariable("count") Long count) {
         if (storageId == null) {
             return ResponseResult.ofFail(-1, "订单不能为空");
         }
@@ -50,12 +54,15 @@ public class OrderControlle {
         OrderEntity order = new OrderEntity();
         order.setId(snowFlakeId.nextId());
         order.setStorageId(storageId);
+        order.setCreateUserId(1L);
         order.setAmount(count);
         order.setCreateAt(LocalDateTime.now());
         order.setUnitPrice(new BigDecimal(12.88));
         order.setTotalPrice(order.getUnitPrice().multiply(order.getUnitPrice()));
         orderMapper.insert(order);// 这里有db
         log.info("创建订单：{}, {}", getMsg(), order);
+        storageService.deduct(storageId, count);
+        
         OrderCreateVO vo = new OrderCreateVO();
         vo.setCreateAt(order.getCancelAt());
         vo.setId(order.getId());

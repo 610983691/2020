@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoProperties.Storage;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.coulee.cloud.common.base.ResponseResult;
 import com.coulee.services.storage.dao.StorageMapper;
 import com.coulee.services.storage.entity.StorageEntity;
 
@@ -27,6 +29,7 @@ public class StorageController {
 	private ApplicationContext context;
 	
 	@RequestMapping("/deduct/{storageId}/{amount}")
+	@Transactional
 	public String deduct(@PathVariable("storageId") Long storageId,@PathVariable("amount")Long amount) {
 		log.info("库存扣除：{}");
 		StorageEntity storage = new StorageEntity();
@@ -35,6 +38,9 @@ public class StorageController {
 		storage.setAmount(currentStorage.getAmount() - amount);//这里可能为负
 		storage.setUpdateAt(LocalDateTime.now());
 		storageMapper.updateById(storage);
+		if(System.currentTimeMillis() %2 ==0) {
+			throw new RuntimeException("故意的");
+		}
 		return getMsg()+"-> 库存扣除。";
 	}
 	
