@@ -112,3 +112,9 @@
 [https://www.bilibili.com/video/BV12Q4y1A7Nt](https://www.bilibili.com/video/BV12Q4y1A7Nt "视频")
 
 [https://www.bilibili.com/video/BV1Cf4y1X7vR](https://www.bilibili.com/video/BV1Cf4y1X7vR "1.3.0")
+
+
+###
+服务会重试问题：
+是由于feign远程调用默认会重试。
+参考：[https://www.liujiajia.me/2019/1/22/feign-retry](https://www.liujiajia.me/2019/1/22/feign-retry "feign重试")
