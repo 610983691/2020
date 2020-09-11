@@ -62,7 +62,7 @@ public class OrderControlle {
         order.setTotalPrice(order.getUnitPrice().multiply(order.getUnitPrice()));
         orderMapper.insert(order);// 这里有db
         log.info("创建订单：{}, {}", getMsg(), order);
-        storageService.deduct(storageId, count);
+        String rst =  storageService.deduct(storageId, count);
         
         OrderCreateVO vo = new OrderCreateVO();
         vo.setCreateAt(order.getCancelAt());

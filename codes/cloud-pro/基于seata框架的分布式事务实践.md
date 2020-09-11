@@ -116,5 +116,78 @@
 
 ###
 服务会重试问题：
-是由于feign远程调用默认会重试。
+是由于feign远程调用默认会重试。由于没有实现幂等接口，需要修改配置禁止重试.
 参考：[https://www.liujiajia.me/2019/1/22/feign-retry](https://www.liujiajia.me/2019/1/22/feign-retry "feign重试")
+
+	feign.sentinel.enabled=true
+	#feign.client.config.default.connectTimeout=12000
+	#feign.client.config.default.readTimeout=12000
+	ribbon.OkToRetryOnAllOperations=false
+	ribbon.MaxAutoRetriesNextServer=0
+	ribbon.MaxAutoRetries=0
+
+####undo_log存在数据问题
+例如：
+
+![undo_log](doc_pic/seata_undolog.PNG  "undo_log")
+
+查看源码：
+
+	// If undo_log exists, it means that the branch transaction has completed the first phase,
+    // we can directly roll back and clean the undo_log
+    // Otherwise, it indicates that there is an exception in the branch transaction,
+    // causing undo_log not to be written to the database.
+    // For example, the business processing timeout, the global transaction is the initiator rolls back.
+    // To ensure data consistency, we can insert an undo_log with GlobalFinished state
+    // to prevent the local transaction of the first phase of other programs from being correctly submitted.
+    // See https://github.com/seata/seata/issues/489
+
+    if (exists) {
+        deleteUndoLog(xid, branchId, conn);
+        conn.commit();
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("xid {} branch {}, undo_log deleted with {}", xid, branchId,
+                State.GlobalFinished.name());
+        }
+    } else {
+        insertUndoLogWithGlobalFinished(xid, branchId, UndoLogParserFactory.getInstance(), conn);
+        conn.commit();
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("xid {} branch {}, undo_log added with {}", xid, branchId,
+                State.GlobalFinished.name());
+        }
+    }	
+
+上面的注释写的很清楚，由于一些别的原因，例如网络问题，当发起方回滚全局事务，为了确保一致性，这个时候需要插入state=1的undo_log来保证其他分支事务的一阶段事务不会被提交。
+
+	insertUndoLogWithGlobalFinished 方法：
+	
+    @Override
+    protected void insertUndoLogWithGlobalFinished(String xid, long branchId, UndoLogParser parser, Connection conn) throws SQLException {
+        insertUndoLog(xid, branchId, buildContext(parser.getName()),
+                parser.getDefaultContent(), State.GlobalFinished, conn);
+    }
+
+	protected enum State {
+        /**
+         * This state can be properly rolled back by services
+         */
+        Normal(0),
+        /**
+         * This state prevents the branch transaction from inserting undo_log after the global transaction is rolled
+         * back.
+         */
+        GlobalFinished(1); //主动添加的undo_log的状态，这个是1.而自动回滚的是上面的0
+
+        private int value;
+
+        State(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+	
+
