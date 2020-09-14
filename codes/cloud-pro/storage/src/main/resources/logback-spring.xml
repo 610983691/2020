@@ -18,10 +18,10 @@
     <!--输出到文件,info级别-->
     <appender name="infolog" class="ch.qos.logback.core.rolling.RollingFileAppender">
 	    <!--如果只是想要 Info 级别的日志，只是过滤 info 还是会输出 Error 日志，因为 Error 的级别高，    所以我们使用下面的策略，可以避免输出 Error 的日志-->
-	    <filter class="ch.qos.logback.classic.filter.LevelFilter"><!-- 只打印INFO日志 -->
+	    <filter class="ch.qos.logback.classic.filter.ThresholdFilter"><!-- 只打印INFO日志 -->
             <level>INFO</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
+<!--             <onMatch>ACCEPT</onMatch> -->
+<!--             <onMismatch>DENY</onMismatch> -->
         </filter>
 
 	    <!--日志名称，如果没有File 属性，那么只会使用FileNamePattern的文件路径规则
@@ -78,7 +78,7 @@
 	    </encoder>
 	</appender>
 
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="console" />
         <appender-ref ref="infolog" />
         <appender-ref ref="errlog" />
