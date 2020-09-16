@@ -1,6 +1,8 @@
 package com.coulee.cloud.core;
 
 import java.util.Collection;
+
+import com.baomidou.mybatisplus.core.metadata.PageList;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 /**
@@ -34,8 +36,8 @@ public class ResponseResult {
 	private long count = 0;
 
 	public static ResponseResult ofSuccess(Object data) {
-		if (data instanceof Page) {
-			Page<?> pageData = (Page<?>) data;
+		if (data instanceof PageList) {
+			PageList<?> pageData = (PageList<?>) data;
 			return new ResponseResult().setSuccess(true).setMsg("成功").setData(pageData.getRecords()).setCount(pageData.getTotal());
 		} else if (data instanceof Collection) {
 			Collection<?> collectionData = (Collection<?>) data;
